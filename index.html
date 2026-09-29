@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#eee3d6"><title>Wedding Invitation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="locked">
+<div id="preloader"><div><div class="monogram">K <span>&</span> N</div><p>Loading invitation</p></div></div>
+<button id="musicToggle" class="music">♫</button><audio id="music" src="music/wedding.mp3" loop></audio>
+<section id="cover" class="cover">
+<div class="cover-bg"></div><div class="cover-overlay"></div>
+<div class="cover-content">
+<p class="eyebrow">WE ARE GETTING ENGAGED</p>
+<h1><span data-groom>Krunal</span><em>&</em><span data-bride>Nikita</span></h1>
+<p class="cover-date" data-date>12 December 2026</p>
+<button id="openInvitation" class="outline">Open Invitation ↓</button>
+</div><div class="scroll">SCROLL<br>↓</div>
+</section>
+<main id="invitation" class="hidden">
+<section class="hero"><img src="images/hero.jpg" alt=""><div class="shade"></div><div class="hero-text">
+<p class="eyebrow">A BEAUTIFUL BEGINNING</p><h2><span data-groom>Krunal</span> <i>&</i> <span data-bride>Nikita</span></h2><p class="script" data-date>15 December 2026</p>
+</div></section>
+<section class="paper center reveal"><p class="eyebrow">WITH LOVE AND BLESSINGS</p><h2>Two hearts.<br>One beautiful story.</h2><div class="ornament">✦</div><p data-message>With the blessings of our families, we invite you to join us as we celebrate a beautiful new chapter together.</p></section>
+<section class="split"><div class="photo"><img src="images/couple.jpg" alt=""></div><div class="paper copy reveal">
+<p class="eyebrow">OUR STORY</p><h2>From this moment,<br>forever begins.</h2><p data-story>Some stories are written in the stars. Ours is written in the little moments, shared smiles and memories that brought two families together.</p>
+<div class="signature"><span data-groom>Krunal</span> & <span data-bride>Nikita</span></div></div></section>
+<section class="paper events"><div class="heading reveal"><p class="eyebrow">SAVE THE DATE</p><h2>Celebrate with us</h2></div><div id="eventList"></div></section>
+<section class="countdown"><div class="count-bg"></div><div class="count-overlay"></div><div class="count-content reveal">
+<p class="eyebrow">COUNTING DOWN TO FOREVER</p><h2>See you soon</h2><div id="timer"><div><b>00</b><span>Days</span></div><div><b>00</b><span>Hours</span></div><div><b>00</b><span>Minutes</span></div><div><b>00</b><span>Seconds</span></div></div>
+</div></section>
+<section class="paper gallery"><div class="heading reveal"><p class="eyebrow">OUR MOMENTS</p><h2>Memories</h2></div><div id="gallery"></div></section>
+<section class="split"><div class="paper copy reveal"><p class="eyebrow">THE VENUE</p><h2>Meet us<br>there.</h2><p data-venue>Your Beautiful Venue</p><p class="muted" data-address>Your venue address, Your City, India</p><a id="map" class="dark" target="_blank">Open in Google Maps</a></div><div class="photo"><img src="images/venue.jpg" alt=""></div></section>
+<section class="paper center rsvp reveal"><p class="eyebrow">WE WOULD LOVE TO HAVE YOU</p><h2>Will you join us?</h2><p>Please let us know if you will be celebrating this special day with us.</p><a id="rsvp" class="dark" target="_blank">RSVP</a></section>
+<footer><div>♡</div><h2><span data-groom>Krunal</span> <i>&</i> <span data-bride>Nikita</span></h2><p>With love, always.</p></footer>
+</main>
+<script src="js/script.js"></script>
+</body></html>

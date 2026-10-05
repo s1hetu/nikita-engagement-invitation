@@ -1,40 +1,188 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#eee3d6"><title>Wedding Invitation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Krunal &amp; Nikita | Engagement Invitation</title>
+<meta name="description" content="With the blessings of our families, we joyfully invite you to celebrate the engagement ceremony of Krunal &amp; Nikita. Tap to open the invitation.">
+<meta name="theme-color" content="#EDE2D5">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Krunal &amp; Nikita | Engagement Invitation">
+<meta property="og:description" content="Join us in celebrating the engagement of Krunal &amp; Nikita. Tap to open the invitation.">
+<meta property="og:image" content="images/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="images/hero.webp">
+<link rel="preload" as="image" href="images/palace.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600&family=Great+Vibes&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<noscript>
+<style>
+  body.locked{overflow:auto}
+  #envelope,#musicToggle{display:none !important}
+</style>
+</noscript>
 </head>
 <body class="locked">
-<div id="preloader"><div><div class="monogram">K <span>&</span> N</div><p>Loading invitation</p></div></div>
-<button id="musicToggle" class="music">♫</button><audio id="music" src="music/wedding.mp3" loop></audio>
-<section id="cover" class="cover">
-<div class="cover-bg"></div><div class="cover-overlay"></div>
-<div class="cover-content">
-<p class="eyebrow">WE ARE GETTING ENGAGED</p>
-<h1><span data-groom>Krunal</span><em>&</em><span data-bride>Nikita</span></h1>
-<p class="cover-date" data-date>12 December 2026</p>
-<button id="openInvitation" class="outline">Open Invitation ↓</button>
-</div><div class="scroll">SCROLL<br>↓</div>
-</section>
-<main id="invitation" class="hidden">
-<section class="hero"><img src="images/hero.jpg" alt=""><div class="shade"></div><div class="hero-text">
-<p class="eyebrow">A BEAUTIFUL BEGINNING</p><h2><span data-groom>Krunal</span> <i>&</i> <span data-bride>Nikita</span></h2><p class="script" data-date>15 December 2026</p>
-</div></section>
-<section class="paper center reveal"><p class="eyebrow">WITH LOVE AND BLESSINGS</p><h2>Two hearts.<br>One beautiful story.</h2><div class="ornament">✦</div><p data-message>With the blessings of our families, we invite you to join us as we celebrate a beautiful new chapter together.</p></section>
-<section class="split"><div class="photo"><img src="images/couple.jpg" alt=""></div><div class="paper copy reveal">
-<p class="eyebrow">OUR STORY</p><h2>From this moment,<br>forever begins.</h2><p data-story>Some stories are written in the stars. Ours is written in the little moments, shared smiles and memories that brought two families together.</p>
-<div class="signature"><span data-groom>Krunal</span> & <span data-bride>Nikita</span></div></div></section>
-<section class="paper events"><div class="heading reveal"><p class="eyebrow">SAVE THE DATE</p><h2>Celebrate with us</h2></div><div id="eventList"></div></section>
-<section class="countdown"><div class="count-bg"></div><div class="count-overlay"></div><div class="count-content reveal">
-<p class="eyebrow">COUNTING DOWN TO FOREVER</p><h2>See you soon</h2><div id="timer"><div><b>00</b><span>Days</span></div><div><b>00</b><span>Hours</span></div><div><b>00</b><span>Minutes</span></div><div><b>00</b><span>Seconds</span></div></div>
-</div></section>
-<section class="paper gallery"><div class="heading reveal"><p class="eyebrow">OUR MOMENTS</p><h2>Memories</h2></div><div id="gallery"></div></section>
-<section class="split"><div class="paper copy reveal"><p class="eyebrow">THE VENUE</p><h2>Meet us<br>there.</h2><p data-venue>Your Beautiful Venue</p><p class="muted" data-address>Your venue address, Your City, India</p><a id="map" class="dark" target="_blank">Open in Google Maps</a></div><div class="photo"><img src="images/venue.jpg" alt=""></div></section>
-<section class="paper center rsvp reveal"><p class="eyebrow">WE WOULD LOVE TO HAVE YOU</p><h2>Will you join us?</h2><p>Please let us know if you will be celebrating this special day with us.</p><a id="rsvp" class="dark" target="_blank">RSVP</a></section>
-<footer><div>♡</div><h2><span data-groom>Krunal</span> <i>&</i> <span data-bride>Nikita</span></h2><p>With love, always.</p></footer>
+
+<!-- ═══════════ SEALED ENVELOPE · tap to open ═══════════ -->
+<div id="envelope" role="button" tabindex="0" aria-label="Open the invitation">
+  <picture>
+    <source type="image/webp" srcset="images/hero.webp">
+    <img class="env-media" src="images/hero.png" alt="" fetchpriority="high">
+  </picture>
+  <span class="env-pulse" aria-hidden="true"></span>
+  <div class="burst" aria-hidden="true">
+    <i class="ring"></i>
+    <i style="--tx:-46px;--ty:-84px"></i>
+    <i style="--tx:44px;--ty:-90px"></i>
+    <i style="--tx:-88px;--ty:-16px"></i>
+    <i style="--tx:92px;--ty:-22px"></i>
+    <i style="--tx:-54px;--ty:56px"></i>
+    <i style="--tx:60px;--ty:62px"></i>
+    <i style="--tx:-6px;--ty:92px"></i>
+    <i style="--tx:4px;--ty:-102px"></i>
+  </div>
+  <div class="env-flash" aria-hidden="true"></div>
+  <div class="env-chrome">
+    <p class="env-monogram">K <span>&amp;</span> N</p>
+    <div class="env-bottom">
+      <p class="env-hint">Tap to open</p>
+      <p class="env-note">♪ best experienced with sound</p>
+    </div>
+  </div>
+</div>
+
+<main id="invitation">
+
+  <!-- ═══════════ 1 · THE SCENE ═══════════ -->
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"><img src="images/palace.jpg" alt=""></div>
+    <div class="hero-shade" aria-hidden="true"></div>
+    <div class="hero-content">
+      <p class="eyebrow reveal">You are cordially invited to Engagement of</p>
+      <p></p>
+      <h1 class="names reveal" style="--d:.1s"><span data-groom>Krunal</span> <em>&amp;</em> <span data-bride>Nikita</span></h1>
+      <div class="ornament reveal" style="--d:.2s"><span>✦</span></div>
+      <p class="opening-date reveal" style="--d:.28s"><span data-date>
+      </span></p>
+    </div>
+    <div class="scroll-cue" aria-hidden="true"><span>scroll</span><i>▾</i></div>
+  </header>
+
+  <!-- ═══════════ 2 · CHILDHOOD MEMORIES ═══════════ -->
+  <section class="memories">
+    <div class="sec-head">
+      <p class="eyebrow reveal">a glimpse into their childhood</p>
+      <h2 class="reveal" style="--d:.08s">Little moments that became<br>beautiful memories.</h2>
+    </div>
+    <div class="polaroids" id="memories" data-stagger></div>
+    <p class="script-line reveal">Little moments, forever cherished.</p>
+  </section>
+
+  <!-- ═══════════ 3 · SCRATCH TO REVEAL ═══════════ -->
+  <section class="surprise center-sec">
+    <div class="sec-head">
+      <p class="eyebrow reveal">a little surprise</p>
+      <h2 class="reveal" style="--d:.08s">Scratch to reveal<br>something special</h2>
+    </div>
+    <div class="scratch-frame reveal" style="--d:.16s">
+      <div class="scratch-prize">
+        <p class="eyebrow">save the date</p>
+        <p class="prize-date"><span data-date>15 December 2026</span></p>
+        <p class="prize-note">the day forever begins</p>
+      </div>
+      <canvas id="scratchCanvas" role="img" aria-label="Scratch card — scratch to reveal the save the date"></canvas>
+      <div class="sparks" aria-hidden="true">
+        <i>✦</i><i>✦</i><i>✦</i><i>✦</i><i>✦</i><i>✦</i>
+      </div>
+    </div>
+    <button id="scratchSkip" class="text-btn" type="button">or tap here to reveal</button>
+  </section>
+
+  <!-- ═══════════ 4 · COUNTDOWN ═══════════ -->
+  <section class="countdown center-sec">
+    <div class="sec-head">
+      <p class="eyebrow reveal">counting down to forever</p>
+      <h2 class="reveal" style="--d:.08s">See you soon</h2>
+    </div>
+    <div id="timer" class="reveal" style="--d:.16s" aria-label="Countdown to the ceremony">
+      <div><b id="tDays">--</b><span>days</span></div>
+      <div><b id="tHours">--</b><span>hours</span></div>
+      <div><b id="tMins">--</b><span>minutes</span></div>
+      <div><b id="tSecs">--</b><span>seconds</span></div>
+    </div>
+    <p id="timerDone" class="script-line" hidden>Forever has officially begun ♥</p>
+  </section>
+
+  <!-- ═══════════ 5 · THE INVITATION ═══════════ -->
+  <section class="invite center-sec">
+    <p class="eyebrow reveal">with love &amp; blessings</p>
+    <p class="invite-lede reveal" style="--d:.08s">We joyfully invite you to<br>celebrate the</p>
+    <p class="invite-word reveal" style="--d:.14s">Engagement Ceremony</p>
+    <p class="invite-of reveal" style="--d:.2s">of</p>
+    <p class="names names-sm reveal" style="--d:.26s"><span data-groom>Krunal</span> <em>&amp;</em> <span data-bride>Nikita</span></p>
+    <p class="invite-note reveal" style="--d:.32s">to exchange rings and begin their forever</p>
+    <figure class="portrait reveal" style="--d:.4s">
+      <img src="images/eng.jpeg" alt="Krunal and Nikita" loading="lazy" decoding="async">
+    </figure>
+    <p class="invite-close reveal" style="--d:.12s">Your presence will make our special day even more meaningful.</p>
+  </section>
+
+  <!-- ═══════════ 6 · CEREMONY DETAILS ═══════════ -->
+  <section class="details">
+    <div class="sec-head">
+      <p class="eyebrow reveal">the celebration</p>
+      <h2 class="reveal" style="--d:.08s">Two hearts,<br>one beautiful beginning.</h2>
+    </div>
+    <figure class="venue-photo reveal" style="--d:.14s">
+      <img src="images/venue.jpg" alt="The celebration venue" loading="lazy" decoding="async">
+    </figure>
+    <div id="eventList" class="event-list" data-stagger></div>
+  </section>
+
+  <!-- ═══════════ 7 · RSVP ═══════════ -->
+  <section class="rsvp center-sec">
+    <div class="sec-head">
+      <p class="eyebrow reveal">wishes &amp; attendance</p>
+      <h2 class="reveal" style="--d:.08s">Will you be<br>joining us?</h2>
+    </div>
+    <p class="rsvp-quote reveal" style="--d:.14s">“We would be delighted to celebrate this beautiful beginning with you.”</p>
+    <div class="rsvp-choices reveal" style="--d:.2s" role="group" aria-label="Your response">
+      <button type="button" class="choice" data-reply="yes" aria-pressed="false">Joyfully accept</button>
+      <button type="button" class="choice" data-reply="no" aria-pressed="false">Regretfully decline</button>
+    </div>
+    <div id="rsvpNext" class="rsvp-next" hidden>
+      <p id="rsvpMsg"></p>
+      <a id="rsvpLink" class="solid-btn" href="#" target="_blank" rel="noopener">Continue to RSVP<span aria-hidden="true"> →</span></a>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="foot">
+    <div class="ornament"><span>❦</span></div>
+    <p class="foot-names"><span data-groom>Krunal</span> <em>&amp;</em> <span data-bride>Nikita</span></p>
+    <p class="foot-line">with love, always</p>
+    <p class="foot-date"><span data-date>15 December 2026</span></p>
+  </footer>
 </main>
+
+<button id="musicToggle" type="button" aria-pressed="false" aria-label="Play music">
+  <svg class="ic ic-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/>
+    <path d="M15.5 8.8a4.2 4.2 0 0 1 0 6.4"/>
+    <path d="M18.2 6.4a7.6 7.6 0 0 1 0 11.2"/>
+  </svg>
+  <svg class="ic ic-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/>
+    <path d="m16 9.5 5 5"/>
+    <path d="m21 9.5-5 5"/>
+  </svg>
+</button>
+<audio id="music" src="music/wedding.mp3" loop preload="metadata"></audio>
+
 <script src="js/script.js"></script>
-</body></html>
+</body>
+</html>

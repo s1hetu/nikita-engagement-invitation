@@ -1,45 +1,377 @@
-const WEDDING={
-groom:"Krunal",bride:"Nikita",dateText:"15 December 2026",
-message:"With the blessings of our families, we invite you to join us as we celebrate a beautiful new chapter together.",
-story:"Some stories are written in the stars. Ours is written in the little moments, shared smiles and memories that brought two families together.",
-countdownTarget:"2026-12-15T19:00:00",
-venue:"Your Beautiful Venue",address:"Your venue address, Your City, India",
-mapsUrl:"https://maps.google.com/",rsvpUrl:"https://forms.google.com/",
-events:[
-{icon:"♡",name:"Engagement",date:"15 December 2026",time:"07:00 PM onwards",venue:"Your Beautiful Venue",address:"Your venue address, Your City",maps:"https://maps.google.com/"},
-{icon:"✦",name:"Wedding",date:"16 December 2026",time:"11:00 AM onwards",venue:"Your Wedding Venue",address:"Your wedding venue address, Your City",maps:"https://maps.google.com/"}
-],
-gallery:["images/photo-1.jpg","images/photo-2.jpg","images/photo-3.jpg","images/photo-4.jpg"]
+/* ═══════════════════════════════════════════════════════════
+   Engagement invitation · all behaviour lives here.
+   Edit CONFIG to personalise — no other file needs changing.
+   ═══════════════════════════════════════════════════════════ */
+
+document.documentElement.classList.add("js");
+
+const CONFIG = {
+  groom: "Krunal",
+  bride: "Nikita",
+  dateText: "15 December 2026",
+  countdownTarget: "2026-12-15T19:00:00",
+
+  memories: [
+    { src: "images/eng.jpeg", caption: "two hearts, one story" },
+    { src: "images/eng.jpeg", caption: "side by side, always" },
+    { src: "images/eng.jpeg", caption: "and forever begins", wide: true },
+  ],
+
+  events: [
+    {
+      name: "Engagement",
+      date: "15 December 2026",
+      time: "7:00 PM onwards",
+      venue: "Your Beautiful Venue",
+      address: "Your venue address, Your City, India",
+      maps: "https://maps.google.com/",
+    },
+  ],
+
+  // Your Google Form (or any RSVP link).
+  rsvpUrl: "https://forms.google.com/",
+
+  // Optional photo behind the countdown, e.g. "images/countdown.jpg".
+  // Left empty, the countdown sits on an elegant dark band.
+  countdownBg: "",
 };
 
-document.querySelectorAll("[data-groom]").forEach(e=>e.textContent=WEDDING.groom);
-document.querySelectorAll("[data-bride]").forEach(e=>e.textContent=WEDDING.bride);
-document.querySelectorAll("[data-date]").forEach(e=>e.textContent=WEDDING.dateText);
-document.querySelector("[data-message]").textContent=WEDDING.message;
-document.querySelector("[data-story]").textContent=WEDDING.story;
-document.querySelector("[data-venue]").textContent=WEDDING.venue;
-document.querySelector("[data-address]").textContent=WEDDING.address;
-document.querySelector("#map").href=WEDDING.mapsUrl;
-document.querySelector("#rsvp").href=WEDDING.rsvpUrl;
+/* ——— helpers ——— */
 
-document.querySelector("#eventList").innerHTML=WEDDING.events.map(x=>`
-<article class="event reveal"><div>${x.icon}</div><h3>${x.name}</h3>
-<p><b>${x.date}</b><br>${x.time}</p><p><strong>${x.venue}</strong><br>${x.address}</p>
-<a href="${x.maps}" target="_blank" rel="noopener">View location →</a></article>`).join("");
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-document.querySelector("#gallery").innerHTML=WEDDING.gallery.map((x,i)=>`<img class="reveal" src="${x}" alt="Memory ${i+1}" loading="lazy">`).join("");
+/* ——— populate the page from CONFIG ——— */
 
-window.addEventListener("load",()=>setTimeout(()=>{const p=document.querySelector("#preloader");p.style.opacity="0";p.style.transition="opacity .5s";setTimeout(()=>p.remove(),550)},500));
+function populate() {
+  $$("[data-groom]").forEach(el => (el.textContent = CONFIG.groom));
+  $$("[data-bride]").forEach(el => (el.textContent = CONFIG.bride));
+  $$("[data-date]").forEach(el => (el.textContent = CONFIG.dateText));
 
-const music=document.querySelector("#music"),musicToggle=document.querySelector("#musicToggle");
-document.querySelector("#openInvitation").addEventListener("click",()=>{
-document.querySelector("#invitation").classList.remove("hidden");document.body.classList.remove("locked");
-music.play().catch(()=>{});document.querySelector("#invitation").scrollIntoView({behavior:"smooth"});observe();
+  $("#memories").innerHTML = CONFIG.memories.map((m, i) => {
+    const tilt = (i % 2 ? 1 : -1) * (m.wide ? 0.9 : 1.5 + (i % 3) * 0.7);
+    return `
+      <figure class="polaroid reveal${m.wide ? " wide" : ""}" style="--r:${tilt}deg">
+        <img src="${m.src}" alt="${m.caption || `Memory ${i + 1}`}" loading="lazy" decoding="async">
+        ${m.caption ? `<figcaption>${m.caption}</figcaption>` : ""}
+      </figure>`;
+  }).join("");
+
+  $("#eventList").innerHTML = CONFIG.events.map(e => `
+    <article class="event-card reveal">
+      <h3 class="ev-name">${e.name}</h3>
+      <p class="ev-date">${e.date}</p>
+      <p class="ev-time">${e.time}</p>
+      <div class="ev-venue">
+        <span class="eyebrow">venue</span>
+        <strong>${e.venue}</strong>
+        <p>${e.address}</p>
+        <a class="ev-map" href="${e.maps}" target="_blank" rel="noopener">View location</a>
+      </div>
+    </article>`).join("");
+
+  $("#rsvpLink").href = CONFIG.rsvpUrl;
+
+  if (CONFIG.countdownBg) {
+    $(".countdown").style.background =
+      `linear-gradient(rgba(42,33,26,.86), rgba(42,33,26,.9)), url("${CONFIG.countdownBg}") center/cover no-repeat`;
+  }
+}
+
+/* ——— scroll reveals, armed once the envelope opens ——— */
+
+function makeReveals() {
+  const els = $$(".reveal");
+
+  // stagger children of any [data-stagger] group
+  $$("[data-stagger]").forEach(group =>
+    [...group.children].forEach((child, i) => child.style.setProperty("--d", `${i * 0.12}s`)));
+
+  let started = false;
+  return {
+    start() {
+      if (started) return;
+      started = true;
+      if (!("IntersectionObserver" in window)) {
+        els.forEach(el => el.classList.add("in"));
+        return;
+      }
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -7% 0px" });
+      els.forEach(el => io.observe(el));
+    },
+  };
+}
+
+/* ——— music ——— */
+
+const music = $("#music");
+const musicToggle = $("#musicToggle");
+
+function playMusic() {
+  if (!music) return;
+  music.play().then(() => setMusicState(true)).catch(() => setMusicState(false));
+}
+
+function setMusicState(playing) {
+  musicToggle?.classList.toggle("playing", playing);
+  musicToggle?.setAttribute("aria-pressed", String(playing));
+  musicToggle?.setAttribute("aria-label", playing ? "Pause music" : "Play music");
+}
+
+musicToggle?.addEventListener("click", () => {
+  if (!music) return;
+  if (music.paused) playMusic();
+  else { music.pause(); setMusicState(false); }
 });
-musicToggle.addEventListener("click",()=>{if(music.paused){music.play().catch(()=>{});musicToggle.textContent="♫"}else{music.pause();musicToggle.textContent="🔇"}});
 
-const target=new Date(WEDDING.countdownTarget).getTime();
-function tick(){let d=Math.max(0,target-Date.now());const a=Math.floor(d/86400000);d%=86400000;const b=Math.floor(d/3600000);d%=3600000;const c=Math.floor(d/60000);d%=60000;const e=Math.floor(d/1000);[a,b,c,e].forEach((v,i)=>document.querySelectorAll("#timer b")[i].textContent=String(v).padStart(2,"0"))}tick();setInterval(tick,1000);
+/* ——— countdown ——— */
 
-function observe(){const els=document.querySelectorAll(".reveal");if(!("IntersectionObserver"in window)){els.forEach(x=>x.classList.add("visible"));return}const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");io.unobserve(e.target)}}),{threshold:.12});els.forEach(x=>io.observe(x))}
-observe();
+function countdown() {
+  const timer = $("#timer"), done = $("#timerDone");
+  if (!timer || !done) return;
+
+  const target = new Date(CONFIG.countdownTarget).getTime();
+  const cells = { d: $("#tDays"), h: $("#tHours"), m: $("#tMins"), s: $("#tSecs") };
+  const pad = n => String(n).padStart(2, "0");
+
+  const iv = setInterval(tick, 1000);
+
+  function tick() {
+    let diff = target - Date.now();
+    if (diff <= 0) {
+      clearInterval(iv);
+      timer.hidden = true;
+      done.hidden = false;
+      return;
+    }
+    cells.d.textContent = pad(Math.floor(diff / 864e5));
+    cells.h.textContent = pad(Math.floor(diff / 36e5) % 24);
+    cells.m.textContent = pad(Math.floor(diff / 6e4) % 60);
+    cells.s.textContent = pad(Math.floor(diff / 1e3) % 60);
+  }
+
+  tick();
+}
+
+/* ——— scratch card ——— */
+
+function scratchCard() {
+  const canvas = $("#scratchCanvas");
+  const frame = canvas?.closest(".scratch-frame");
+  const skip = $("#scratchSkip");
+  if (!canvas || !frame) return;
+
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  let cleared = false, drawing = false, last = null, lastCheck = 0, resizeTimer;
+  let prevW = 0, prevH = 0;
+
+  function paintCover() {
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // gold foil
+    const g = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+    g.addColorStop(0, "#C6A05E");
+    g.addColorStop(.5, "#A5814A");
+    g.addColorStop(1, "#7E5F33");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    // brushed striations
+    ctx.save();
+    ctx.globalAlpha = .13;
+    ctx.strokeStyle = "#FFF6E6";
+    ctx.lineWidth = 1;
+    for (let x = -rect.height; x < rect.width; x += 9) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + rect.height, rect.height);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // label
+    ctx.fillStyle = "rgba(255, 246, 230, .88)";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "600 12px 'Manrope', sans-serif";
+    ctx.fillText("S C R A T C H   H E R E", rect.width / 2, rect.height / 2);
+    ctx.font = "13px serif";
+    ctx.fillText("✦", rect.width / 2, rect.height / 2 - 36);
+    ctx.fillText("✦", rect.width / 2, rect.height / 2 + 36);
+  }
+
+  function sizeAndPaint() {
+    const rect = canvas.getBoundingClientRect();
+    if (Math.abs(rect.width - prevW) < 2 && Math.abs(rect.height - prevH) < 2) return;
+    prevW = rect.width;
+    prevH = rect.height;
+    if (!cleared) paintCover();
+  }
+
+  function scratch(x, y) {
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(x, y, 26, 0, Math.PI * 2);
+    ctx.fill();
+    if (last) {
+      ctx.lineWidth = 52;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+    last = { x, y };
+  }
+
+  function pos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function checkCleared() {
+    if (!canvas.width || !canvas.height) return;
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let clear = 0, total = 0;
+    for (let i = 3; i < data.length; i += 64) {
+      total++;
+      if (data[i] < 130) clear++;
+    }
+    if (clear / total > 0.55) reveal();
+  }
+
+  function reveal() {
+    if (cleared) return;
+    cleared = true;
+    canvas.classList.add("cleared");
+    frame.classList.add("revealed");
+    skip?.setAttribute("hidden", "");
+    if (navigator.vibrate) navigator.vibrate(25);
+  }
+
+  canvas.addEventListener("pointerdown", e => {
+    if (cleared) return;
+    drawing = true;
+    canvas.setPointerCapture(e.pointerId);
+    const p = pos(e);
+    last = null;
+    scratch(p.x, p.y);
+  });
+
+  canvas.addEventListener("pointermove", e => {
+    if (!drawing || cleared) return;
+    e.preventDefault();
+    const p = pos(e);
+    scratch(p.x, p.y);
+    const now = performance.now();
+    if (now - lastCheck > 150) {
+      lastCheck = now;
+      checkCleared();
+    }
+  });
+
+  ["pointerup", "pointercancel", "pointerleave"].forEach(type =>
+    canvas.addEventListener(type, () => { drawing = false; last = null; }));
+
+  canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+  skip?.addEventListener("click", reveal);
+
+  sizeAndPaint();
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(sizeAndPaint, 180);
+  });
+
+  // repaint once fonts arrive so the label uses the right face
+  if (document.fonts?.load) {
+    document.fonts.load("600 12px Manrope").then(() => { if (!cleared) paintCover(); }).catch(() => {});
+  } else if (document.fonts?.ready) {
+    document.fonts.ready.then(() => { if (!cleared) paintCover(); });
+  }
+}
+
+/* ——— rsvp ——— */
+
+function rsvp() {
+  const next = $("#rsvpNext"), msg = $("#rsvpMsg");
+  if (!next || !msg) return;
+
+  const messages = {
+    yes: "Wonderful! We can't wait to celebrate with you — please confirm your details below.",
+    no: "You'll be dearly missed. Kindly let us know via the form so we can plan accordingly.",
+  };
+
+  $$(".choice").forEach(btn => btn.addEventListener("click", () => {
+    $$(".choice").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+    msg.textContent = messages[btn.dataset.reply] || "";
+    next.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => next.classList.add("show")));
+  }));
+}
+
+/* ——— sealed envelope → open the invitation ——— */
+
+// A hard refresh re-downloads the document over the network (encodedBodySize > 0);
+// a soft refresh serves it from cache, so the envelope plays only on first
+// visit or hard refresh — normal refreshes land straight on the palace hero.
+function isHardReload() {
+  try {
+    const [nav] = performance.getEntriesByType("navigation");
+    return !!nav && nav.type === "reload" && nav.encodedBodySize > 0;
+  } catch (e) { return false; }
+}
+
+function initEnvelope() {
+  const envelope = $("#envelope");
+  if (!envelope) { revealCtl.start(); return; }
+
+  function open() {
+    if (document.body.classList.contains("opened")) return;
+    try { sessionStorage.setItem("invitation-opened", "1"); } catch (e) { /* private mode */ }
+    playMusic();
+    envelope.classList.add("opening");
+    // 0–1.45s zoom into the seal → flash → cover fades over the palace hero
+    setTimeout(() => envelope.classList.add("gone"), 1550);
+    setTimeout(() => document.body.classList.add("opened"), 1500);
+    setTimeout(() => revealCtl.start(), 1550);
+    setTimeout(() => envelope.remove(), 2300);
+  }
+
+  let skipped = false;
+  try { skipped = !!sessionStorage.getItem("invitation-opened"); } catch (e) { /* private mode */ }
+  if (isHardReload()) skipped = false;
+
+  if (skipped) {
+    envelope.remove();
+    document.body.classList.add("opened");
+    revealCtl.start();
+    return;
+  }
+
+  envelope.addEventListener("click", open);
+  envelope.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+  });
+}
+
+/* ——— go ——— */
+
+populate();
+const revealCtl = makeReveals();
+rsvp();
+countdown();
+scratchCard();
+initEnvelope();

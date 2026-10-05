@@ -1,8 +1,12 @@
 # Free Wedding / Engagement Invitation
 
-An original HTML/CSS/JavaScript invitation inspired by premium Indian wedding invitation websites.
+An original HTML/CSS/JavaScript invitation inspired by premium Indian wedding
+invitation websites — sealed-envelope opening, childhood polaroids, a
+scratch-to-reveal save the date, live countdown, ceremony details and an
+interactive RSVP.
 
-It is not Aarambh Invites' source code and does not include their photos, artwork, logo, or proprietary assets.
+It is not Aarambh Invites' source code and does not include their photos,
+artwork, logo, or proprietary assets.
 
 ## Run locally
 
@@ -16,35 +20,52 @@ Then open:
 
     http://localhost:8000
 
+## How it works
+
+1. Guests first see a **sealed envelope filling the whole screen** — tapping
+   it plays a cinematic sequence: the camera zooms into the wax seal, gold
+   sparks fly, a cream flash passes through the paper, and the scene reveals
+   an illuminated palace with the couple's names, while the music starts.
+   Returning visitors in the same browser session skip straight to the scene.
+2. Sections flow like a printed card: the palace hero, childhood polaroids,
+   a **scratch card** hiding the save-the-date, a **countdown**, the formal
+   invitation, ceremony details, and an **RSVP** where guests pick a response
+   and continue to your form.
+
 ## Customize
 
-Edit `js/script.js` and change the `WEDDING` object:
+Edit `js/script.js` and change the `CONFIG` object:
 
-- groom
-- bride
-- dateText
-- message
-- story
-- countdownTarget
-- venue
-- address
-- mapsUrl
-- rsvpUrl
-- events
-- gallery
+- `groom`, `bride`, `dateText`
+- `countdownTarget` — e.g. `"2026-12-15T19:00:00"`
+- `memories` — childhood polaroids (`src`, `caption`, optional `wide: true`)
+- `events` — one card per ceremony (mehndi, sangeet, wedding, …), each with
+  date, time, venue, address and a Google Maps link
+- `rsvpUrl` — your Google Form link
+- `countdownBg` — optional photo behind the countdown, e.g.
+  `"images/countdown.jpg"`; leave empty for the plain dark band
 
 ## Replace images
 
 Put your own images in `images/` with these names:
 
-    hero.jpg
-    couple.jpg
-    venue.jpg
-    countdown.jpg
-    photo-1.jpg
-    photo-2.jpg
-    photo-3.jpg
-    photo-4.jpg
+    hero.png        sealed envelope — shown full-screen on the cover;
+                   hero.webp is its optimised copy (regenerate with:
+                   convert hero.png -quality 82 hero.webp)
+    palace.jpg      the scene revealed after opening (full-screen hero).
+                   Currently the illuminated Mysore Palace — swap in your
+                   own venue photo if you prefer
+    couple.jpg      framed portrait in the invitation section
+    venue.jpg       photo in the ceremony-details section
+    photo-1.jpg …   childhood polaroids
+    photo-4.jpg     spare slot
+    og.jpg          1200×630 preview shown when the link is shared on
+                   WhatsApp / Instagram / Twitter
+    countdown.jpg   optional — only used if you set `countdownBg`
+
+The current photos are free stock images from
+[Unsplash](https://unsplash.com/license) chosen to match the cream-and-gold
+aesthetic — replace them with your own whenever you're ready.
 
 ## Music
 
@@ -52,13 +73,16 @@ Put your own appropriately licensed MP3 at:
 
     music/wedding.mp3
 
-Music starts after the visitor clicks Open Invitation because browsers commonly block autoplay with sound.
+Music starts after the guest taps the envelope (browsers only allow sound
+after a tap). The floating button in the corner pauses and resumes it.
 
 ## RSVP for ₹0
 
 Create a Google Form, copy its public URL, and put it in `rsvpUrl`.
 
-Responses can be collected in Google Sheets. No backend or database is required.
+Guests first pick "Joyfully accept" or "Regretfully decline", then continue
+to your form. Responses can be collected in Google Sheets — no backend or
+database is required.
 
 ## Free hosting: GitHub Pages
 
@@ -85,20 +109,20 @@ No custom domain is required, so the total hosting cost can be ₹0.
     ├── js/
     │   └── script.js
     ├── images/
-    │   ├── hero.jpg
+    │   ├── hero.png / hero.webp   (envelope)
     │   ├── couple.jpg
     │   ├── venue.jpg
-    │   ├── countdown.jpg
-    │   ├── photo-1.jpg
-    │   ├── photo-2.jpg
-    │   ├── photo-3.jpg
-    │   └── photo-4.jpg
+    │   ├── countdown.jpg          (optional)
+    │   ├── photo-1.jpg … photo-4.jpg
+    │   └── og.jpg                 (share preview)
     └── music/
         └── wedding.mp3
 
 ## Notes
 
 - The site is static and needs no server.
+- Fully responsive — designed mobile-first, comfortable on phones, tablets
+  and desktops; honours `prefers-reduced-motion`.
 - Google Maps is just an external link.
 - Google Forms can handle RSVP without a backend.
 - GitHub Pages provides HTTPS automatically.

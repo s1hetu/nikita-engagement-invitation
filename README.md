@@ -90,6 +90,7 @@ database is required.
 6. Select branch `main` and folder `/ (root)`.
 7. Save.
 
+
 Your free URL will look like:
 
     https://YOUR_USERNAME.github.io/wedding-invitation/

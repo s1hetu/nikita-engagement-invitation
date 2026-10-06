@@ -29,10 +29,21 @@
 
 <!-- ═══════════ SEALED ENVELOPE · tap to open ═══════════ -->
 <div id="envelope" role="button" tabindex="0" aria-label="Open the invitation">
-  <picture>
-    <source type="image/webp" srcset="images/hero.webp">
-    <img class="env-media" src="images/hero.png" alt="" fetchpriority="high">
-  </picture>
+  <div class="env-half env-pocket" aria-hidden="true">
+    <picture>
+      <source type="image/webp" srcset="images/hero.webp">
+      <img class="env-img" src="images/hero.png" alt="" fetchpriority="high">
+    </picture>
+  </div>
+  <div class="env-card" aria-hidden="true">
+    <img src="images/palace.jpg" alt="">
+  </div>
+  <div class="env-half env-flap" aria-hidden="true">
+    <picture>
+      <source type="image/webp" srcset="images/hero.webp">
+      <img class="env-img" src="images/hero.png" alt="" fetchpriority="high">
+    </picture>
+  </div>
   <span class="env-pulse" aria-hidden="true"></span>
   <div class="burst" aria-hidden="true">
     <i class="ring"></i>
@@ -45,7 +56,6 @@
     <i style="--tx:-6px;--ty:92px"></i>
     <i style="--tx:4px;--ty:-102px"></i>
   </div>
-  <div class="env-flash" aria-hidden="true"></div>
   <div class="env-chrome">
     <p class="env-monogram">K <span>&amp;</span> N</p>
     <div class="env-bottom">
@@ -95,8 +105,20 @@
         <p class="prize-note">the day forever begins</p>
       </div>
       <canvas id="scratchCanvas" role="img" aria-label="Scratch card — scratch to reveal the save the date"></canvas>
+      <div class="foil-sheen" aria-hidden="true"></div>
       <div class="sparks" aria-hidden="true">
-        <i>✦</i><i>✦</i><i>✦</i><i>✦</i><i>✦</i><i>✦</i>
+        <i style="--tx:-130px;--ty:-170px">✦</i>
+        <i style="--tx:120px;--ty:-150px">✧</i>
+        <i style="--tx:-150px;--ty:20px">♥</i>
+        <i style="--tx:155px;--ty:40px">✦</i>
+        <i style="--tx:-80px;--ty:175px">✧</i>
+        <i style="--tx:95px;--ty:160px">♥</i>
+        <i style="--tx:-45px;--ty:-115px">♥</i>
+        <i style="--tx:60px;--ty:-195px">✦</i>
+        <i style="--tx:10px;--ty:205px">✧</i>
+        <i style="--tx:-175px;--ty:-55px">✧</i>
+        <i style="--tx:175px;--ty:-25px">✦</i>
+        <i style="--tx:-15px;--ty:-205px">♥</i>
       </div>
     </div>
     <button id="scratchSkip" class="text-btn" type="button">or tap here to reveal</button>
@@ -165,7 +187,9 @@
     <div class="ornament"><span>❦</span></div>
     <p class="foot-names"><span data-groom>Krunal</span> <em>&amp;</em> <span data-bride>Nikita</span></p>
     <p class="foot-line">with love, always</p>
-    <p class="foot-date"><span data-date>15 December 2026</span></p>
+    <p class="foot-date"><span data-date>
+      15 December 2026
+    </span></p>
   </footer>
 </main>
 

@@ -1,12 +1,10 @@
 # Free Wedding / Engagement Invitation
 
 An original HTML/CSS/JavaScript invitation inspired by premium Indian wedding
-invitation websites — sealed-envelope opening, childhood polaroids, a
+invitation websites — sealed-envelope opening, photo polaroids, a
 scratch-to-reveal save the date, live countdown, ceremony details and an
 interactive RSVP.
 
-It is not Aarambh Invites' source code and does not include their photos,
-artwork, logo, or proprietary assets.
 
 ## Run locally
 
@@ -27,7 +25,7 @@ Then open:
    sparks fly, a cream flash passes through the paper, and the scene reveals
    an illuminated palace with the couple's names, while the music starts.
    Returning visitors in the same browser session skip straight to the scene.
-2. Sections flow like a printed card: the palace hero, childhood polaroids,
+2. Sections flow like a printed card: the palace hero, photo polaroids,
    a **scratch card** hiding the save-the-date, a **countdown**, the formal
    invitation, ceremony details, and an **RSVP** where guests pick a response
    and continue to your form.
@@ -38,7 +36,7 @@ Edit `js/script.js` and change the `CONFIG` object:
 
 - `groom`, `bride`, `dateText`
 - `countdownTarget` — e.g. `"2026-12-15T19:00:00"`
-- `memories` — childhood polaroids (`src`, `caption`, optional `wide: true`)
+- `memories` — photo polaroids (`src`, `caption`, optional `wide: true`)
 - `events` — one card per ceremony (mehndi, sangeet, wedding, …), each with
   date, time, venue, address and a Google Maps link
 - `rsvpUrl` — your Google Form link
@@ -55,15 +53,13 @@ Put your own images in `images/` with these names:
     palace.jpg      the scene revealed after opening (full-screen hero).
                    Currently the illuminated Mysore Palace — swap in your
                    own venue photo if you prefer
-    couple.jpg      framed portrait in the invitation section
+    eng.jpeg        the couple's photo — used for the framed portrait in
+                   the invitation section and the polaroids
     venue.jpg       photo in the ceremony-details section
-    photo-1.jpg …   childhood polaroids
-    photo-4.jpg     spare slot
     og.jpg          1200×630 preview shown when the link is shared on
                    WhatsApp / Instagram / Twitter
-    countdown.jpg   optional — only used if you set `countdownBg`
 
-The current photos are free stock images from
+`palace.jpg` and `venue.jpg` are free stock images from
 [Unsplash](https://unsplash.com/license) chosen to match the cream-and-gold
 aesthetic — replace them with your own whenever you're ready.
 
@@ -110,10 +106,9 @@ No custom domain is required, so the total hosting cost can be ₹0.
     │   └── script.js
     ├── images/
     │   ├── hero.png / hero.webp   (envelope)
-    │   ├── couple.jpg
+    │   ├── eng.jpeg               (couple's photo)
+    │   ├── palace.jpg             (hero scene)
     │   ├── venue.jpg
-    │   ├── countdown.jpg          (optional)
-    │   ├── photo-1.jpg … photo-4.jpg
     │   └── og.jpg                 (share preview)
     └── music/
         └── wedding.mp3

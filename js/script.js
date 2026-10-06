@@ -170,7 +170,45 @@ function scratchCard() {
 
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   let cleared = false, drawing = false, last = null, lastCheck = 0, resizeTimer;
-  let prevW = 0, prevH = 0;
+  let prevW = 0, prevH = 0, liveGlitter = 0;
+
+  const GLITTER = ["#E9C980", "#D8AC55", "#FFF3D6", "#C6A05E", "#F7E6BC"];
+
+  // golden dust dropped as the coin moves
+  function spawnGlitter(x, y) {
+    if (liveGlitter > 90) return;
+    liveGlitter++;
+    const s = document.createElement("i");
+    s.className = "glit";
+    const sz = 4 + Math.random() * 5;
+    s.style.cssText =
+      `left:${x + Math.random() * 16 - 8}px;top:${y + Math.random() * 16 - 8}px;` +
+      `width:${sz}px;height:${sz}px;` +
+      `background:${GLITTER[(Math.random() * GLITTER.length) | 0]};` +
+      `--dx:${Math.random() * 56 - 28}px;--dy:${26 + Math.random() * 60}px;` +
+      `--rot:${Math.random() * 300 - 150}deg`;
+    s.addEventListener("animationend", () => { liveGlitter--; s.remove(); });
+    frame.appendChild(s);
+  }
+
+  // joyous confetti burst once the prize shows
+  function celebrate() {
+    const colors = [...GLITTER, "#E8A0A0", "#F6D8E0"];
+    for (let i = 0; i < 42; i++) {
+      const c = document.createElement("i");
+      c.className = "confetti";
+      c.style.cssText =
+        `left:${5 + Math.random() * 90}%;top:${8 + Math.random() * 22}%;` +
+        `width:${3 + Math.random() * 3}px;height:${7 + Math.random() * 6}px;` +
+        `background:${colors[i % colors.length]};` +
+        `--dx:${Math.random() * 180 - 90}px;--dy:${-(90 + Math.random() * 160)}px;` +
+        `--fall:${180 + Math.random() * 160}px;` +
+        `animation-delay:${(Math.random() * .4).toFixed(2)}s;` +
+        `animation-duration:${(1.3 + Math.random() * .8).toFixed(2)}s`;
+      c.addEventListener("animationend", () => c.remove());
+      frame.appendChild(c);
+    }
+  }
 
   function paintCover() {
     const rect = canvas.getBoundingClientRect();
@@ -234,6 +272,7 @@ function scratchCard() {
       ctx.stroke();
     }
     last = { x, y };
+    spawnGlitter(x, y);
   }
 
   function pos(e) {
@@ -258,7 +297,8 @@ function scratchCard() {
     canvas.classList.add("cleared");
     frame.classList.add("revealed");
     skip?.setAttribute("hidden", "");
-    if (navigator.vibrate) navigator.vibrate(25);
+    celebrate();
+    if (navigator.vibrate) navigator.vibrate([20, 50, 30]);
   }
 
   canvas.addEventListener("pointerdown", e => {
@@ -343,10 +383,10 @@ function initEnvelope() {
     try { sessionStorage.setItem("invitation-opened", "1"); } catch (e) { /* private mode */ }
     playMusic();
     envelope.classList.add("opening");
-    // 0–1.45s zoom into the seal → flash → cover fades over the palace hero
+    // seal cracks → the two halves slide apart, revealing the hero
+    setTimeout(() => document.body.classList.add("opened"), 500);
     setTimeout(() => envelope.classList.add("gone"), 1550);
-    setTimeout(() => document.body.classList.add("opened"), 1500);
-    setTimeout(() => revealCtl.start(), 1550);
+    setTimeout(() => revealCtl.start(), 1600);
     setTimeout(() => envelope.remove(), 2300);
   }
 

@@ -163,29 +163,73 @@ section {
   inset: 0;
   z-index: 90;
   cursor: pointer;
-  background: #E8DCCB;
+  overflow: hidden;
   transition: opacity .65s ease;
 }
 
 #envelope.gone { opacity: 0; pointer-events: none; }
 
-/* the envelope paper fills the screen; 61.5% is the wax seal's
-   position inside the image — object-position and transform-origin
-   keep the seal framed and anchor the zoom on it at every viewport */
-.env-media {
+/* the envelope paper fills the screen, split into a top flap and a
+   bottom pocket that slide apart to reveal the real hero behind —
+   transform-only, so it stays smooth on phones */
+.env-img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: 50% 61.5%;
-  transform-origin: 50% 61.5%;
+}
+
+.env-half {
+  position: absolute;
+  inset: 0;
+}
+
+.env-pocket {
+  z-index: 1;
+  clip-path: inset(54.4% 0 0 0);
+  will-change: transform;
+}
+
+.env-flap {
+  z-index: 3;
+  clip-path: inset(0 0 45.4% 0);
+  will-change: transform;
+}
+
+/* the palace card tucked inside, waiting to be pulled out */
+.env-card {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  clip-path: inset(30% 8% 26% 8% round 10px);
+  transform: translateY(34%);
+  opacity: 0;
+  will-change: transform, clip-path;
+}
+
+.env-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* matches the real hero's shade so the hand-off is seamless */
+.env-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 50%, rgba(26, 18, 12, 0) 30%, rgba(26, 18, 12, .45) 100%),
+    linear-gradient(180deg, rgba(26, 18, 12, .5) 0%, rgba(26, 18, 12, .18) 42%, rgba(26, 18, 12, .55) 100%);
 }
 
 /* monogram + hint floating over the paper */
 .env-chrome {
   position: absolute;
   inset: 0;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -262,6 +306,7 @@ section {
   position: absolute;
   left: 50%;
   top: 61.5%;
+  z-index: 4;
   width: 120px;
   height: 120px;
   border: 1px solid rgba(120, 92, 52, .55);
@@ -272,20 +317,12 @@ section {
   pointer-events: none;
 }
 
-/* cream flash as the camera passes through the paper */
-.env-flash {
-  position: absolute;
-  inset: 0;
-  background: #F2E9DB;
-  opacity: 0;
-  pointer-events: none;
-}
-
 /* wax-seal burst on open */
 .burst {
   position: absolute;
   left: 50%;
   top: 61.5%;
+  z-index: 5;
   pointer-events: none;
 }
 
@@ -310,29 +347,53 @@ section {
 }
 
 /* the opening sequence:
-   0–1.45s zoom into the seal → seal sparkles → cream flash
-   1.55–2.2s the whole cover fades out over the palace hero */
+   0–.6s   seal cracks — spark burst at the wax, paper shudders
+   .45–1.6s the two halves slide apart (flap up, pocket down) and
+           reveal the real hero behind
+   1.5–2s  the envelope finishes fading away over the settled hero */
 #envelope.opening { cursor: default; }
 
-#envelope.opening .env-media { animation: sealZoom 1.45s cubic-bezier(.5, .02, .3, 1) forwards; }
-
-#envelope.opening .env-chrome { opacity: 0; transition: opacity .4s ease; }
+#envelope.opening .env-chrome { opacity: 0; transition: opacity .35s ease; }
 
 #envelope.opening .env-pulse { animation: none; opacity: 0; }
 
-#envelope.opening .burst i:not(.ring) { animation: spark .8s cubic-bezier(.15, .6, .4, 1) .8s forwards; }
+#envelope.opening .burst i:not(.ring) { animation: spark .8s cubic-bezier(.15, .6, .4, 1) .1s forwards; }
 
-#envelope.opening .burst .ring { animation: sparkRing .7s ease-out .75s forwards; }
+#envelope.opening .burst .ring { animation: sparkRing .7s ease-out .05s forwards; }
 
-#envelope.opening .env-flash { animation: flashUp .5s ease .95s forwards; }
+#envelope.opening .env-flap { animation: halfUp 1.1s cubic-bezier(.7, 0, .25, 1) .45s forwards; }
 
-#envelope.opening { animation: coverOut .65s ease 1.55s forwards; }
+#envelope.opening .env-pocket { animation: halfDown 1.1s cubic-bezier(.7, 0, .25, 1) .55s forwards; }
 
-@keyframes sealZoom { to { transform: scale(2.55); } }
+#envelope.opening {
+  animation:
+    coverOut .5s ease 1.5s forwards,
+    envShudder 1.1s ease-out .3s 1;
+}
 
-@keyframes flashUp { to { opacity: 1; } }
+/* the halves fade as they slide, so the dark hero behind bleeds
+   through gradually instead of flashing as a hard band */
+@keyframes halfUp {
+  0%   { opacity: 1; }
+  45%  { opacity: .72; }
+  100% { transform: translateY(-114%); opacity: 0; }
+}
+
+@keyframes halfDown {
+  0%   { opacity: 1; }
+  45%  { opacity: .72; }
+  100% { transform: translateY(118%); opacity: 0; }
+}
 
 @keyframes coverOut { to { opacity: 0; } }
+
+/* a tiny shudder through the paper as the seal breaks */
+@keyframes envShudder {
+  0%, 100% { transform: translateY(0); }
+  18%      { transform: translateY(3px); }
+  38%      { transform: translateY(-2px); }
+  58%      { transform: translateY(1px); }
+}
 
 @keyframes sealPulse {
   0%   { transform: translate(-50%, -50%) scale(.55); opacity: .85; }
@@ -571,11 +632,94 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-  cursor: crosshair;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='12' fill='%23C6A05E' stroke='%237E5F33' stroke-width='2'/%3E%3Ccircle cx='15' cy='15' r='7' fill='none' stroke='%23FFF3D6' stroke-width='1.5'/%3E%3Ccircle cx='10.5' cy='10.5' r='2' fill='%23FFF3D6' opacity='.85'/%3E%3C/svg%3E") 15 15, crosshair;
   transition: opacity .9s ease .15s;
 }
 
 #scratchCanvas.cleared { opacity: 0; pointer-events: none; }
+
+/* light sweeping across the gold foil while it waits */
+.foil-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(115deg,
+    transparent 30%,
+    rgba(255, 240, 200, .45) 45%,
+    rgba(255, 252, 240, .8) 50%,
+    rgba(255, 240, 200, .45) 55%,
+    transparent 70%);
+  background-size: 260% 100%;
+  background-position: 130% 0;
+  mix-blend-mode: screen;
+  animation: sheenMove 3.4s ease-in-out infinite;
+}
+
+.scratch-frame.revealed .foil-sheen { opacity: 0; transition: opacity .5s ease; }
+
+@keyframes sheenMove {
+  0%, 55% { background-position: 130% 0; }
+  100%    { background-position: -70% 0; }
+}
+
+/* golden ring that bursts past the frame on reveal */
+.scratch-frame::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--gold);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scratch-frame.revealed::before { animation: ringBurst 1s ease-out .1s forwards; }
+
+@keyframes ringBurst {
+  0%   { opacity: .9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.16); }
+}
+
+/* glitter dropped by the coin while scratching */
+.glit {
+  position: absolute;
+  z-index: 4;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(255, 230, 160, .85);
+  animation: glitFall .8s ease-in forwards;
+}
+
+@keyframes glitFall {
+  0%   { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(.4); }
+}
+
+/* confetti celebration on reveal */
+.confetti {
+  position: absolute;
+  z-index: 5;
+  border-radius: 1px;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 0 5px rgba(255, 236, 180, .6);
+  animation: confettiPop 1.6s cubic-bezier(.2, .7, .4, 1) forwards;
+}
+
+@keyframes confettiPop {
+  0%   { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+  12%  { opacity: 1; }
+  55%  { opacity: 1; transform: translate(var(--dx), var(--dy)) rotate(200deg); }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * 1.4), var(--fall)) rotate(480deg); }
+}
+
+.scratch-frame.revealed .scratch-prize { animation: prizePop .9s cubic-bezier(.34, 1.56, .64, 1) .15s both; }
+
+@keyframes prizePop {
+  0%   { transform: scale(.96); }
+  55%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
 
 .sparks {
   position: absolute;
@@ -594,14 +738,11 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   opacity: 0;
 }
 
-.scratch-frame.revealed .sparks i { animation: sparkFloat 1.15s ease-out forwards; }
+.scratch-frame.revealed .sparks i { animation: sparkFloat 1.2s ease-out forwards; }
 
-.sparks i:nth-child(1) { --tx: -130px; --ty: -170px; animation-delay: .08s; }
-.sparks i:nth-child(2) { --tx: 120px;  --ty: -150px; animation-delay: .16s; }
-.sparks i:nth-child(3) { --tx: -150px; --ty: 20px;   animation-delay: .24s; }
-.sparks i:nth-child(4) { --tx: 155px;  --ty: 40px;   animation-delay: .12s; }
-.sparks i:nth-child(5) { --tx: -80px;  --ty: 175px;  animation-delay: .28s; }
-.sparks i:nth-child(6) { --tx: 95px;   --ty: 160px;  animation-delay: .34s; }
+.sparks i:nth-child(odd)  { animation-delay: .1s; }
+.sparks i:nth-child(3n)   { animation-delay: .22s; }
+.sparks i:nth-child(5n)   { animation-delay: .32s; }
 
 @keyframes sparkFloat {
   0%   { opacity: 0; transform: translate(0, 0) scale(.5) rotate(0deg); }

@@ -555,8 +555,9 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 .polaroid img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
+  object-position: 50% 25%;
   filter: saturate(.92);
 }
 
@@ -567,9 +568,12 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   color: var(--ink-soft);
 }
 
-.polaroid.wide { grid-column: 1 / -1; }
-
-.polaroid.wide img { aspect-ratio: 16 / 10; }
+/* featured photo: centred on its own row, a little larger than the pair above */
+.polaroid.wide {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 62%;
+}
 
 @media (hover: hover) {
   .polaroid:hover {

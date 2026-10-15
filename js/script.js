@@ -8,23 +8,23 @@ document.documentElement.classList.add("js");
 const CONFIG = {
   groom: "Krunal",
   bride: "Nikita",
-  dateText: "15 December 2026",
+  dateText: "12 December 2026",
   countdownTarget: "2026-12-15T19:00:00",
 
   memories: [
-    { src: "images/eng.jpeg", caption: "two hearts, one story" },
-    { src: "images/eng.jpeg", caption: "side by side, always" },
-    { src: "images/eng.jpeg", caption: "and forever begins", wide: true },
+    { src: "images/nikki-childhood.jpeg", caption: "two hearts, one story" },
+    { src: "images/krunal-childhood.jpeg", caption: "side by side, always" },
+    { src: "images/child-wedding.jpeg", caption: "and forever begins", wide: true },
   ],
 
   events: [
     {
       name: "Engagement",
-      date: "15 December 2026",
-      time: "7:00 PM onwards",
-      venue: "Your Beautiful Venue",
-      address: "Your venue address, Your City, India",
-      maps: "https://maps.google.com/",
+      date: "12 December 2026",
+      time: "11:00 AM onwards",
+      venue: "Malad De Grande",
+      address: "Mgl Building, Malad Gymkhana Limited, Marve Rd, Malad, Adarsh Nagar, Malad West, Mumbai, Maharashtra 400064",
+      maps: "https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRiPAtIBCDEzNTlqMGo3qAIAsAIA&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KR3t5pVMt-c7MRgDukeYWVwZ&daddr=Mgl+Building,+Malad+Gymkhana+Limited,+Marve+Rd,+Malad,+Adarsh+Nagar,+Malad+West,+Mumbai,+Maharashtra+400064",
     },
   ],
 

@@ -521,7 +521,7 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 /* ═══════════ 2 · CHILDHOOD MEMORIES ═══════════ */
 
 .polaroids {
-  max-width: 760px;
+  max-width: 520px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -572,7 +572,7 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 .polaroid.wide {
   grid-column: 1 / -1;
   justify-self: center;
-  width: 62%;
+  width: 56%;
 }
 
 @media (hover: hover) {

@@ -151,13 +151,52 @@ function countdown() {
       done.hidden = false;
       return;
     }
-    cells.d.textContent = pad(Math.floor(diff / 864e5));
-    cells.h.textContent = pad(Math.floor(diff / 36e5) % 24);
-    cells.m.textContent = pad(Math.floor(diff / 6e4) % 60);
-    cells.s.textContent = pad(Math.floor(diff / 1e3) % 60);
+    set(cells.d, pad(Math.floor(diff / 864e5)));
+    set(cells.h, pad(Math.floor(diff / 36e5) % 24));
+    set(cells.m, pad(Math.floor(diff / 6e4) % 60));
+    set(cells.s, pad(Math.floor(diff / 1e3) % 60));
+  }
+
+  // swap the value and replay the drop-in, only when it actually changes
+  function set(el, value) {
+    if (el.textContent === value) return;
+    el.textContent = value;
+    el.classList.remove("tick");
+    void el.offsetWidth;
+    el.classList.add("tick");
   }
 
   tick();
+}
+
+/* ——— gold dust drifting up through the hero ——— */
+
+function heroDust() {
+  const host = $(".hero-dust");
+  if (!host) return;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  host.innerHTML = Array.from({ length: 18 }, () =>
+    `<i style="left:${rnd(4, 96).toFixed(1)}%;--s:${rnd(1.5, 3.6).toFixed(1)}px;` +
+    `--t:${rnd(11, 20).toFixed(1)}s;--delay:${rnd(-20, 0).toFixed(1)}s;` +
+    `--drift:${rnd(-40, 40).toFixed(0)}px;--o:${rnd(.35, .85).toFixed(2)}"></i>`).join("");
+}
+
+/* ——— reading progress thread ——— */
+
+function scrollProgress() {
+  const bar = $(".scroll-progress");
+  if (!bar) return;
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.setProperty("--p", max > 0 ? Math.min(1, scrollY / max).toFixed(4) : 0);
+  };
+  addEventListener("scroll", () => {
+    if (!queued) { queued = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  addEventListener("resize", update);
+  update();
 }
 
 /* ——— scratch card ——— */
@@ -413,5 +452,7 @@ populate();
 const revealCtl = makeReveals();
 rsvp();
 countdown();
+heroDust();
+scrollProgress();
 scratchCard();
 initEnvelope();

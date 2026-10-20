@@ -524,6 +524,9 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   flex-direction: column;
   align-items: center;
   padding: 0 1.5rem;
+  /* lift the names into the night sky, clear of the palace domes */
+  margin-bottom: 34vh;
+  margin-bottom: 34svh;
 }
 
 .hero .eyebrow {
@@ -532,6 +535,8 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 }
 
 .hero .names {
+  font-size: clamp(2.3rem, 10vw, 6.6rem);
+  white-space: nowrap;
   color: #F6EEDF;
   text-shadow: 0 2px 30px rgba(20, 12, 6, .55);
 }
@@ -541,18 +546,6 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 .hero .ornament::before,
 .hero .ornament::after {
   background: linear-gradient(90deg, transparent, rgba(201, 169, 106, .7));
-}
-
-.opening-date {
-  margin: 0;
-  font: italic 500 clamp(1.05rem, 3.4vw, 1.5rem) var(--font-serif);
-  letter-spacing: .06em;
-  color: var(--ink-soft);
-}
-
-.hero .opening-date {
-  color: rgba(246, 238, 223, .92);
-  text-shadow: 0 1px 18px rgba(20, 12, 6, .65);
 }
 
 .scroll-cue {
@@ -625,7 +618,7 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 .polaroid img {
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 5 / 8;
   object-fit: cover;
   object-position: 50% 25%;
   filter: saturate(.92);
@@ -645,6 +638,8 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   margin-top: clamp(.4rem, 2vw, .9rem);
   width: 56%;
 }
+
+.polaroid.wide img { aspect-ratio: 3 / 4; }
 
 /* each photo drops in with a little extra tilt, then settles on the page */
 .js .polaroid.reveal {
@@ -698,9 +693,9 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: .85rem;
-  aspect-ratio: 4 / 5;
-  padding: 1.6rem;
+  gap: .55rem;
+  aspect-ratio: 8 / 5;
+  padding: 1.2rem;
   text-align: center;
   opacity: .8;
   transform: scale(.96);
@@ -753,6 +748,7 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   animation: sheenMove 3.4s ease-in-out infinite;
 }
 
+.scratch-frame.scratching .foil-sheen,
 .scratch-frame.revealed .foil-sheen { opacity: 0; transition: opacity .5s ease; }
 
 @keyframes sheenMove {
@@ -923,6 +919,11 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 }
 
 /* ═══════════ 5 · THE INVITATION ═══════════ */
+
+/* the invitation and the details share a background, so trim the seam
+   between them instead of stacking two full section paddings */
+.invite { padding-bottom: clamp(1.5rem, 4vw, 2.5rem); }
+.details { padding-top: clamp(1.5rem, 4vw, 2.5rem); }
 
 .invite > .eyebrow { margin-bottom: clamp(1.1rem, 3vw, 1.5rem); }
 
@@ -1159,6 +1160,35 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   font: italic 500 1.02rem/1.7 var(--font-serif);
   color: var(--ink-soft);
 }
+
+.decline-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .75rem;
+  width: min(100%, 380px);
+}
+
+.decline-form input {
+  flex: 1 1 100%;
+  min-height: 46px;
+  padding: .8rem 1rem;
+  background: var(--paper-lift);
+  border: 1px solid var(--gold-line);
+  border-radius: 0;
+  font: 500 1.05rem var(--font-serif);
+  color: var(--ink);
+}
+
+.decline-form input::placeholder { color: var(--ink-faint); font-style: italic; }
+
+.decline-form input:focus { outline: none; border-color: var(--gold-deep); }
+
+.decline-form .solid-btn { border: 0; cursor: pointer; }
+
+.decline-form .solid-btn:disabled { opacity: .6; cursor: progress; }
+
+.choice:disabled { cursor: default; transform: none; }
 
 .solid-btn {
   display: inline-block;

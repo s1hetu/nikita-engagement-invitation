@@ -39,7 +39,8 @@ Edit `js/script.js` and change the `CONFIG` object:
 - `memories` — photo polaroids (`src`, `caption`, optional `wide: true`)
 - `events` — one card per ceremony (mehndi, sangeet, wedding, …), each with
   date, time, venue, address and a Google Maps link
-- `rsvpUrl` — your Google Form link
+- `rsvpUrl` — your Google Form link (guests who accept)
+- `rsvpSheetUrl` — Apps Script web-app URL that records declines
 - `countdownBg` — optional photo behind the countdown, e.g.
   `"images/countdown.jpg"`; leave empty for the plain dark band
 
@@ -74,11 +75,21 @@ after a tap). The floating button in the corner pauses and resumes it.
 
 ## RSVP for ₹0
 
-Create a Google Form, copy its public URL, and put it in `rsvpUrl`.
+Guests pick "Joyfully accept" or "Regretfully decline". Accepting opens your
+Google Form; declining asks only for a name on the page. Both end up in one
+"RSVPs" tab of a Google Sheet with a Status column — no backend required.
 
-Guests first pick "Joyfully accept" or "Regretfully decline", then continue
-to your form. Responses can be collected in Google Sheets — no backend or
-database is required.
+1. Create a Google Form. In Settings → Responses set **Collect email
+   addresses** to *Responder input*, then add four questions, in this order:
+   Name, Phone, Dietary preference, Members. Put its link in `rsvpUrl`.
+2. In the form's Responses tab, click **Link to Sheets** → new spreadsheet.
+3. In that sheet: **Extensions → Apps Script**, replace the code with
+   `google-apps-script/rsvp.gs`, save, pick `setup` and click **Run**
+   (allow the permissions it asks for).
+4. **Deploy → New deployment → Web app**, execute as *Me*, access *Anyone*.
+   Put the web-app URL in `rsvpSheetUrl`.
+
+Set `NOTIFY` in the script to get an email for every RSVP.
 
 ## Free hosting: GitHub Pages
 

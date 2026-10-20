@@ -78,8 +78,6 @@
       <p class="eyebrow reveal">You are cordially invited to Engagement of</p>
       <h1 class="names reveal" style="--d:.1s"><span data-groom>Krunal</span> <em>&amp;</em> <span data-bride>Nikita</span></h1>
       <div class="ornament reveal" style="--d:.2s"><span>✦</span></div>
-      <p class="opening-date reveal" style="--d:.28s"><span data-date>
-      </span></p>
     </div>
     <div class="scroll-cue" aria-hidden="true"><span>scroll</span><i>▾</i></div>
   </header>
@@ -181,6 +179,11 @@
     <div id="rsvpNext" class="rsvp-next" hidden>
       <p id="rsvpMsg"></p>
       <a id="rsvpLink" class="solid-btn" href="#" target="_blank" rel="noopener">Continue to RSVP<span aria-hidden="true"> →</span></a>
+      <form id="declineForm" class="decline-form" hidden>
+        <input id="declineName" name="name" type="text" placeholder="Your name" aria-label="Your name" autocomplete="name" maxlength="80" required>
+        <input name="email" type="email" placeholder="Email (optional)" aria-label="Email (optional)" autocomplete="email" maxlength="120">
+        <button class="solid-btn" type="submit">Send<span aria-hidden="true"> →</span></button>
+      </form>
     </div>
   </section>
 
@@ -207,7 +210,7 @@
     <path d="m21 9.5-5 5"/>
   </svg>
 </button>
-<audio id="music" src="music/wedding.mp3" loop preload="metadata"></audio>
+<audio id="music" src="music/ye_tune_kya_kiya.mp3" loop preload="auto"></audio>
 
 <script src="js/script.js"></script>
 </body>

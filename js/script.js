@@ -9,11 +9,12 @@ const CONFIG = {
   groom: "Krunal",
   bride: "Nikita",
   dateText: "12 December 2026",
-  countdownTarget: "2026-12-15T19:00:00",
+  // 11:00 AM India time, so guests abroad see the right countdown too.
+  countdownTarget: "2026-12-12T11:00:00+05:30",
 
   memories: [
-    { src: "images/nikki-childhood.jpeg", caption: "two hearts, one story" },
-    { src: "images/krunal-childhood.jpeg", caption: "side by side, always" },
+    { src: "images/krunal-childhood.jpeg", caption: "two hearts, one story" },
+    { src: "images/nikki-childhood-new.jpeg", caption: "side by side, always" },
     { src: "images/child-wedding.jpeg", caption: "and forever begins", wide: true },
   ],
 
@@ -28,8 +29,12 @@ const CONFIG = {
     },
   ],
 
-  // Your Google Form (or any RSVP link).
-  rsvpUrl: "https://forms.google.com/",
+  // Guests who accept fill this Google Form (email, name, phone, diet, members).
+  rsvpUrl: "https://docs.google.com/forms/d/e/1FAIpQLSe9R6Vp9Ro1V7hcaywh-1m8p8Q40YJWyPSiGpQx1fkGeMxxbQ/viewform",
+
+  // Guests who decline just type their name (and optional email); it is sent to this Apps Script
+  // web-app URL and lands in the same sheet. See google-apps-script/rsvp.gs.
+  rsvpSheetUrl: "https://script.google.com/macros/s/AKfycbwC-A1LXAAozrKTXOaF22TE45sbRXk3W5P1bZvEux1NmFPM4lTbYmBrulIL9kXSYrRQTQ/exec",
 
   // Optional photo behind the countdown, e.g. "images/countdown.jpg".
   // Left empty, the countdown sits on an elegant dark band.
@@ -123,6 +128,21 @@ function setMusicState(playing) {
   musicToggle?.classList.toggle("playing", playing);
   musicToggle?.setAttribute("aria-pressed", String(playing));
   musicToggle?.setAttribute("aria-label", playing ? "Pause music" : "Play music");
+}
+
+// Browsers block sound until the visitor interacts with the page, so try
+// right away (works where autoplay is allowed) and otherwise start on the
+// very first touch, click or key press anywhere — even before the envelope.
+function autoStartMusic() {
+  if (!music) return;
+  const events = ["pointerdown", "touchstart", "keydown"];
+  const unlock = e => {
+    if (musicToggle?.contains(e.target)) return; // the toggle handles itself
+    events.forEach(t => removeEventListener(t, unlock, true));
+    if (music.paused) playMusic();
+  };
+  music.play().then(() => setMusicState(true)).catch(() =>
+    events.forEach(t => addEventListener(t, unlock, { capture: true, passive: true })));
 }
 
 musicToggle?.addEventListener("click", () => {
@@ -253,40 +273,61 @@ function scratchCard() {
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(rect.width * dpr);
-    canvas.height = Math.round(rect.height * dpr);
+    const w = rect.width, h = rect.height;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = "source-over";
 
-    // gold foil
-    const g = ctx.createLinearGradient(0, 0, rect.width, rect.height);
-    g.addColorStop(0, "#C6A05E");
-    g.addColorStop(.5, "#A5814A");
-    g.addColorStop(1, "#7E5F33");
+    // gold foil with a metallic band of light through the middle
+    const g = ctx.createLinearGradient(0, 0, w, h);
+    g.addColorStop(0, "#9C7638");
+    g.addColorStop(.3, "#D9B56A");
+    g.addColorStop(.5, "#F3DDA4");
+    g.addColorStop(.7, "#C99E52");
+    g.addColorStop(1, "#86642F");
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.fillRect(0, 0, w, h);
+
+    // fine metallic grain
+    for (let i = 0; i < w * h / 18; i++) {
+      ctx.fillStyle = Math.random() < .5 ? "rgba(255,248,225,.16)" : "rgba(70,48,16,.12)";
+      ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
+    }
 
     // brushed striations
     ctx.save();
-    ctx.globalAlpha = .13;
+    ctx.globalAlpha = .08;
     ctx.strokeStyle = "#FFF6E6";
     ctx.lineWidth = 1;
-    for (let x = -rect.height; x < rect.width; x += 9) {
+    for (let x = -h; x < w; x += 6) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x + rect.height, rect.height);
+      ctx.lineTo(x + h, h);
       ctx.stroke();
     }
     ctx.restore();
 
-    // label
-    ctx.fillStyle = "rgba(255, 246, 230, .88)";
+    // stamped inner border
+    ctx.strokeStyle = "rgba(255, 244, 214, .55)";
+    ctx.setLineDash([3, 4]);
+    ctx.strokeRect(10.5, 10.5, w - 21, h - 21);
+    ctx.setLineDash([]);
+
+    // embossed label
+    const cx = w / 2, cy = h / 2;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = "600 12px 'Manrope', sans-serif";
-    ctx.fillText("S C R A T C H   H E R E", rect.width / 2, rect.height / 2);
-    ctx.font = "13px serif";
-    ctx.fillText("✦", rect.width / 2, rect.height / 2 - 36);
-    ctx.fillText("✦", rect.width / 2, rect.height / 2 + 36);
+    const emboss = (text, font, y) => {
+      ctx.font = font;
+      ctx.fillStyle = "rgba(90, 62, 22, .45)";
+      ctx.fillText(text, cx + 1, y + 1);
+      ctx.fillStyle = "rgba(255, 249, 232, .95)";
+      ctx.fillText(text, cx, y);
+    };
+    emboss("✦", "16px serif", cy - 30);
+    emboss("S C R A T C H   H E R E", "700 13px 'Manrope', sans-serif", cy);
+    emboss("with your finger", "italic 500 15px 'Cormorant Garamond', serif", cy + 26);
   }
 
   function sizeAndPaint() {
@@ -297,21 +338,36 @@ function scratchCard() {
     if (!cleared) paintCover();
   }
 
+  // a coin-like brush: solid core with a ragged, flaky edge,
+  // stamped along the path so fast swipes leave no gaps
+  const BRUSH = 22;
+  function stamp(x, y) {
+    ctx.beginPath();
+    ctx.arc(x, y, BRUSH, 0, Math.PI * 2);
+    ctx.fill();
+    for (let i = 0; i < 6; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = BRUSH - 2 + Math.random() * 7;
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(a) * r, y + Math.sin(a) * r, 1 + Math.random() * 2.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  let lastBuzz = 0;
   function scratch(x, y) {
     ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(x, y, 26, 0, Math.PI * 2);
-    ctx.fill();
-    if (last) {
-      ctx.lineWidth = 52;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(last.x, last.y);
-      ctx.lineTo(x, y);
-      ctx.stroke();
+    ctx.fillStyle = "#000";
+    const from = last || { x, y };
+    const dist = Math.hypot(x - from.x, y - from.y);
+    const steps = Math.max(1, Math.ceil(dist / 5));
+    for (let i = 1; i <= steps; i++) {
+      stamp(from.x + (x - from.x) * i / steps, from.y + (y - from.y) * i / steps);
     }
     last = { x, y };
     spawnGlitter(x, y);
+    const now = performance.now();
+    if (navigator.vibrate && now - lastBuzz > 90) { lastBuzz = now; navigator.vibrate(4); }
   }
 
   function pos(e) {
@@ -327,7 +383,7 @@ function scratchCard() {
       total++;
       if (data[i] < 130) clear++;
     }
-    if (clear / total > 0.55) reveal();
+    if (clear / total > 0.45) reveal();
   }
 
   function reveal() {
@@ -343,6 +399,7 @@ function scratchCard() {
   canvas.addEventListener("pointerdown", e => {
     if (cleared) return;
     drawing = true;
+    frame.classList.add("scratching");
     canvas.setPointerCapture(e.pointerId);
     const p = pos(e);
     last = null;
@@ -355,7 +412,7 @@ function scratchCard() {
     const p = pos(e);
     scratch(p.x, p.y);
     const now = performance.now();
-    if (now - lastCheck > 150) {
+    if (now - lastCheck > 120) {
       lastCheck = now;
       checkCleared();
     }
@@ -386,19 +443,53 @@ function scratchCard() {
 
 function rsvp() {
   const next = $("#rsvpNext"), msg = $("#rsvpMsg");
-  if (!next || !msg) return;
+  const link = $("#rsvpLink"), form = $("#declineForm");
+  if (!next || !msg || !link || !form) return;
 
   const messages = {
     yes: "Wonderful! We can't wait to celebrate with you — please confirm your details below.",
-    no: "You'll be dearly missed. Kindly let us know via the form so we can plan accordingly.",
+    no: "You'll be dearly missed. Kindly leave your name so we know you won't be joining us.",
   };
 
   $$(".choice").forEach(btn => btn.addEventListener("click", () => {
+    if (form.classList.contains("sent")) return;
+    const yes = btn.dataset.reply === "yes";
     $$(".choice").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
     msg.textContent = messages[btn.dataset.reply] || "";
+    link.hidden = !yes;
+    form.hidden = yes;
     next.hidden = false;
     requestAnimationFrame(() => requestAnimationFrame(() => next.classList.add("show")));
+    if (!yes) $("#declineName").focus({ preventScroll: true });
   }));
+
+  // declines go straight to the sheet; the response is opaque (no-cors),
+  // so a resolved request is treated as delivered
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const name = form.elements.name.value.trim();
+    const email = form.elements.email.value.trim();
+    if (!form.reportValidity() || !name) { form.elements.name.focus(); return; }
+    if (!CONFIG.rsvpSheetUrl) {
+      msg.textContent = "RSVP isn't connected yet — please message the family directly.";
+      return;
+    }
+    const button = form.querySelector("button");
+    button.disabled = true;
+    fetch(CONFIG.rsvpSheetUrl, {
+      method: "POST",
+      mode: "no-cors",
+      body: new URLSearchParams({ name, email, status: "Declined" }),
+    }).then(() => {
+      form.classList.add("sent");
+      form.hidden = true;
+      $$(".choice").forEach(b => (b.disabled = true));
+      msg.textContent = `Thank you, ${name}. You'll be dearly missed — we'll keep you in our hearts on the day.`;
+    }).catch(() => {
+      button.disabled = false;
+      msg.textContent = "Couldn't send just now — please check your connection and try again.";
+    });
+  });
 }
 
 /* ——— sealed envelope → open the invitation ——— */
@@ -456,3 +547,4 @@ heroDust();
 scrollProgress();
 scratchCard();
 initEnvelope();
+autoStartMusic();

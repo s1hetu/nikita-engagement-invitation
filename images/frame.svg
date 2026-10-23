@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+<g fill="none" stroke="#A5814A" stroke-width="1.2">
+<!-- outer rule, notched at the corners -->
+<path d="M18 4 H102 M116 18 V102 M102 116 H18 M4 102 V18"/>
+<path d="M4 18 A14 14 0 0 0 18 4 M102 4 A14 14 0 0 0 116 18 M116 102 A14 14 0 0 0 102 116 M18 116 A14 14 0 0 0 4 102"/>
+<!-- inner rule -->
+<path d="M24 10 H96 M110 24 V96 M96 110 H24 M10 96 V24" stroke-width=".8" opacity=".75"/>
+<path d="M10 24 A14 14 0 0 0 24 10 M96 10 A14 14 0 0 0 110 24 M110 96 A14 14 0 0 0 96 110 M24 110 A14 14 0 0 0 10 96" stroke-width=".8" opacity=".75"/>
+</g>
+<g fill="#A5814A">
+<path d="M22 16 l3 6 l-3 6 l-3 -6z" transform="rotate(-45 22 22)"/>
+<path d="M98 16 l3 6 l-3 6 l-3 -6z" transform="rotate(45 98 22)"/>
+<path d="M98 92 l3 6 l-3 6 l-3 -6z" transform="rotate(-45 98 98)"/>
+<path d="M22 92 l3 6 l-3 6 l-3 -6z" transform="rotate(45 22 98)"/>
+<circle cx="31" cy="31" r="1.4"/><circle cx="89" cy="31" r="1.4"/><circle cx="89" cy="89" r="1.4"/><circle cx="31" cy="89" r="1.4"/>
+</g>
+</svg>

@@ -474,8 +474,21 @@ body.opened .scroll-progress { opacity: .85; }
 
 .hero-bg img { object-fit: cover; }
 
-/* slow cinematic settle once the envelope has opened */
-body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1) forwards; }
+/* slow cinematic settle once the envelope has opened, while the palace
+   lights come up from a dim night */
+.js .hero-bg img { filter: brightness(.3) saturate(.5); }
+
+body.opened .hero-bg img {
+  animation:
+    kenburns 9s cubic-bezier(.22, .61, .36, 1) forwards,
+    lightsOn 1.6s ease-out .1s forwards;
+}
+
+@keyframes lightsOn {
+  0%   { filter: brightness(.3) saturate(.5); }
+  55%  { filter: brightness(1.14) saturate(1.15); }
+  100% { filter: brightness(1) saturate(1); }
+}
 
 @keyframes kenburns {
   from { transform: scale(1.14); }
@@ -529,23 +542,295 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   margin-bottom: 34svh;
 }
 
+/* phones: the stacked names are taller, so lift them further */
+@media (max-width: 639px) {
+  .hero-content {
+    margin-bottom: 46vh;
+    margin-bottom: 46svh;
+  }
+
+  .hero .eyebrow { margin-bottom: .6rem; }
+}
+
 .hero .eyebrow {
   margin-bottom: clamp(1.2rem, 3.5vw, 1.8rem);
   color: var(--gold-on-night);
 }
 
+/* ——— the couple's names, written in light ———
+   script.js rebuilds the names as SVG text (one line on laptop/tablet,
+   Krunal / & / Nikita stacked on phones) so each letter's outline can be
+   traced. Without JS they simply show as cream script text. */
 .hero .names {
-  font-size: clamp(2.3rem, 10vw, 6.6rem);
+  position: relative;
+  font-size: clamp(4.6rem, 9.6vw, 8.6rem);
   white-space: nowrap;
   color: #F6EEDF;
   text-shadow: 0 2px 30px rgba(20, 12, 6, .55);
 }
 
-.hero .names em { color: var(--gold-on-night); }
+@media (max-width: 639px) {
+  .hero .names { font-size: clamp(3.6rem, 20vw, 5.6rem); }
+}
 
-.hero .ornament::before,
-.hero .ornament::after {
-  background: linear-gradient(90deg, transparent, rgba(201, 169, 106, .7));
+/* the SVG box includes the font's full ascent/descent; trim the extra
+   space below the letters */
+.js .hero .names { margin-bottom: -.32em; }
+
+@media (max-width: 639px) {
+  .js .hero .names { margin: -.15em 0 -.5em; }
+}
+
+.hn-svg {
+  display: block;
+  max-width: 94vw;
+  height: auto;
+  overflow: visible;
+  /* a faint warm glow around the gold */
+  filter: drop-shadow(0 0 8px rgba(255, 200, 120, .22));
+}
+
+.hn-svg text { font-family: var(--font-script); }
+
+.hn-svg .hn-amp { font-family: var(--font-serif); font-style: italic; font-weight: 500; }
+
+/* 1. light traces every letter's outline … */
+.hn-ink {
+  fill: url(#hnGold);
+  fill-opacity: 0;
+  stroke: #FFE9B4;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+  stroke-dasharray: 1600;
+  stroke-dashoffset: 1600;
+}
+
+.hn-rule {
+  stroke: #EBCB86;
+  stroke-width: 1;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+}
+
+body.names-in .hn-ink {
+  animation:
+    hnTrace 1.5s cubic-bezier(.45, .05, .35, 1) forwards,
+    hnFill .9s ease .85s forwards;
+}
+
+body.names-in .hn-rule { animation: hnTrace 1s ease .5s forwards; }
+
+@keyframes hnTrace { to { stroke-dashoffset: 0; } }
+
+/* 2. … then molten gold floods in and the tracing light dims to a bevel */
+@keyframes hnFill { to { fill-opacity: 1; stroke-opacity: .15; } }
+
+/* while the light is tracing, the whole name glows hot, then cools */
+body.names-in .hn-svg { animation: hnHeat 2.2s ease-out forwards; }
+
+@keyframes hnHeat {
+  0%   { filter: drop-shadow(0 0 3px rgba(255, 236, 190, .9)) drop-shadow(0 0 10px rgba(255, 200, 110, .45)); }
+  100% { filter: drop-shadow(0 0 8px rgba(255, 200, 120, .22)); }
+}
+
+/* 3. a beam of light sweeps the gold (SVG gradient, started by script.js) */
+.hn-sweep { fill: url(#hnSweep); pointer-events: none; }
+
+/* four-point glints that twinkle on the gold (placed by script.js) */
+.hn-glint {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  margin: -7.5px 0 0 -7.5px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(255, 226, 160, .7));
+  opacity: 0;
+}
+
+.hn-glint::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, #FFFFFF 0%, #FFF1C8 35%, #F2D486 70%);
+  clip-path: polygon(50% 0, 56% 44%, 100% 50%, 56% 56%, 50% 100%, 44% 56%, 0 50%, 44% 44%);
+}
+
+body.names-in .hn-glint { animation: glint var(--t, 5s) ease-in-out var(--delay, 2s) infinite; }
+
+@keyframes glint {
+  0%, 72%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  82%           { opacity: .85; transform: scale(var(--s, 1)) rotate(45deg); }
+  92%           { opacity: .5; transform: scale(.25) rotate(90deg); }
+}
+
+/* ——— hero entrance, once the envelope opens ———
+   0s    fireworks start as the envelope parts (script.js)
+   .1s   palace lights come up
+   .3s   invitation line drifts in, letters settling together
+   ~1.2s a finale rocket bursts right where the names sit; script.js adds
+         body.names-in at that instant and everything below keys off it:
+   +0    light traces the outline of every letter, a gold flash blooms behind
+   +.85s molten gold floods the letters, the glow cools
+   +1.9s a beam of light sweeps the gold; glints start twinkling */
+
+/* soft halo behind the names so they glow against the sky */
+.hero-content::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(110vw, 860px);
+  height: 170%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(20, 12, 6, .3), rgba(20, 12, 6, 0));
+  pointer-events: none;
+  z-index: -1;
+}
+
+.js .hero .eyebrow,
+.js .hero .names { opacity: 0; }
+
+body.opened .hero .eyebrow { animation: eyebrowIn 1.1s cubic-bezier(.22, 1, .36, 1) .3s forwards; }
+
+@keyframes eyebrowIn {
+  from { opacity: 0; letter-spacing: .9em; text-indent: .9em; filter: blur(5px); }
+  to   { opacity: 1; letter-spacing: .42em; text-indent: .42em; filter: blur(0); }
+}
+
+/* the names are shown the instant the finale bursts; the drama comes from
+   the light tracing them (above) */
+body.names-in .hero .names { animation: fadeIn .01s linear forwards; }
+
+/* a golden flash blooming behind the names as they unfold, then a soft
+   lasting glow */
+.hero-flash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(110vw, 980px);
+  height: 70%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(255, 214, 140, .32), rgba(255, 214, 140, 0));
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.names-in .hero-flash { animation: nameFlash 1.8s ease-out forwards; }
+
+@keyframes nameFlash {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+  18%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* a gold shockwave ring expanding behind the names as they appear */
+.hero-content::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 160px;
+  height: 160px;
+  margin: -80px 0 0 -80px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 222, 160, .9);
+  box-shadow: 0 0 40px rgba(255, 214, 140, .6), inset 0 0 30px rgba(255, 214, 140, .4);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.names-in .hero-content::after { animation: shockwave 1.4s cubic-bezier(.15, .7, .3, 1) forwards; }
+
+@keyframes shockwave {
+  0%   { opacity: 1; transform: scale(.2); }
+  100% { opacity: 0; transform: scale(5.5); }
+}
+
+
+
+@keyframes fadeIn { to { opacity: 1; } }
+
+.js .hero .scroll-cue { opacity: 0; }
+
+body.names-in .hero .scroll-cue { animation: fadeIn 1s ease .9s forwards; }
+
+/* fireworks over the palace (particles are added by script.js) */
+.hero-fireworks {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fw-rocket {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 46px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: linear-gradient(to top, rgba(255, 226, 170, 0), rgba(255, 236, 196, .95));
+  animation: rocketUp var(--rise, .9s) cubic-bezier(.3, .6, .4, 1) forwards;
+}
+
+@keyframes rocketUp {
+  0%   { opacity: 0; transform: translateY(0); }
+  15%  { opacity: 1; }
+  100% { opacity: .2; transform: translateY(var(--climb)); }
+}
+
+.fw-burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* bright flash at the heart of each burst */
+.fw-burst::before {
+  content: "";
+  position: absolute;
+  left: -40px;
+  top: -40px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 244, 214, .95), rgba(255, 214, 140, 0));
+  animation: fwFlash .6s ease-out forwards;
+}
+
+.fw-big::before {
+  left: -110px;
+  top: -110px;
+  width: 220px;
+  height: 220px;
+  animation-duration: .8s;
+}
+
+.fw-burst.fw-big i { width: 5px; height: 5px; left: -2.5px; top: -2.5px; }
+
+@keyframes fwFlash {
+  from { opacity: 1; transform: scale(.3); }
+  to   { opacity: 0; transform: scale(1.4); }
+}
+
+.fw-burst i {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px 1px var(--c);
+  animation: fwSpark var(--life, 1.6s) cubic-bezier(.12, .7, .3, 1) forwards;
+}
+
+@keyframes fwSpark {
+  0%   { opacity: 1; transform: rotate(var(--a)) translateX(0) scale(1.2); }
+  70%  { opacity: .9; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--r)) translateY(var(--fall, 18px)) scale(.3); }
 }
 
 .scroll-cue {
@@ -582,6 +867,40 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 }
 
 /* ═══════════ 2 · CHILDHOOD MEMORIES ═══════════ */
+
+/* warm scrapbook backdrop: blush + gold glows, a faint floral print that
+   fades out behind the photos, and two mandalas peeking in at the corners */
+.memories {
+  overflow: hidden;
+  background:
+    radial-gradient(65% 45% at 0% 0%, rgba(226, 170, 158, .32), transparent 70%),
+    radial-gradient(60% 45% at 100% 100%, rgba(201, 160, 94, .28), transparent 70%),
+    linear-gradient(180deg, #F4EADD 0%, #EADBC8 100%);
+}
+
+.memories::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../images/pattern-floral.svg") 0 0 / 110px 110px;
+  opacity: .5;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 55%, transparent 30%, #000 85%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 55%, transparent 30%, #000 85%);
+  pointer-events: none;
+}
+
+.memories::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("../images/mandala.svg") right -170px top -170px / 380px 380px no-repeat,
+    url("../images/mandala.svg") left -190px bottom -190px / 420px 420px no-repeat;
+  opacity: .22;
+  pointer-events: none;
+}
+
+.memories > * { position: relative; z-index: 1; }
 
 .polaroids {
   max-width: 520px;
@@ -672,11 +991,33 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 
 /* ═══════════ 3 · SCRATCH TO REVEAL ═══════════ */
 
-.surprise { background: var(--paper-deep); }
+/* carved jaali lattice fading in from the edges, with a warm spotlight
+   pooling behind the card */
+.surprise {
+  overflow: hidden;
+  background:
+    radial-gradient(42% 34% at 50% 60%, rgba(255, 240, 210, .85), transparent 75%),
+    radial-gradient(60% 40% at 100% 0%, rgba(214, 160, 140, .22), transparent 70%),
+    radial-gradient(60% 40% at 0% 100%, rgba(190, 150, 90, .22), transparent 70%),
+    linear-gradient(180deg, #EADCC9 0%, #E2D0B9 100%);
+}
+
+.surprise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../images/jaali.svg") center / 72px 72px;
+  opacity: .32;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 58%, transparent 35%, #000 90%);
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 58%, transparent 35%, #000 90%);
+  pointer-events: none;
+}
+
+.surprise > * { position: relative; z-index: 1; }
 
 .scratch-frame {
   position: relative;
-  width: min(84vw, 380px);
+  width: min(86vw, 480px);
   margin-top: clamp(.6rem, 2vw, 1rem);
   background: var(--paper-lift);
   border: 1px solid var(--gold-line);
@@ -694,8 +1035,8 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   align-items: center;
   justify-content: center;
   gap: .55rem;
-  aspect-ratio: 8 / 5;
-  padding: 1.2rem;
+  aspect-ratio: 7 / 5;
+  padding: 1.6rem;
   text-align: center;
   opacity: .8;
   transform: scale(.96);
@@ -706,7 +1047,7 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 
 .prize-date {
   margin: 0;
-  font: 400 clamp(2.05rem, 8.5vw, 2.9rem)/1.15 var(--font-script);
+  font: 400 clamp(2.3rem, 9vw, 3.4rem)/1.15 var(--font-script);
   color: var(--ink);
 }
 
@@ -862,14 +1203,45 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 
 /* ═══════════ 4 · COUNTDOWN ═══════════ */
 
-.countdown { background: var(--night); }
+.countdown {
+  overflow: hidden;
+  background:
+    radial-gradient(72% 55% at 50% 0%, rgba(165, 129, 74, .2), transparent 70%),
+    radial-gradient(60% 50% at 50% 115%, rgba(165, 129, 74, .22), transparent 70%),
+    var(--night);
+}
 
-.countdown::before {
+/* two layers of tiny stars that twinkle out of step */
+.countdown::before,
+.countdown::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(72% 55% at 50% 0%, rgba(165, 129, 74, .18), transparent 70%);
   pointer-events: none;
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 18%, #F3D9A0, transparent),
+    radial-gradient(1px 1px at 33% 72%, #F6EEDF, transparent),
+    radial-gradient(1.4px 1.4px at 58% 24%, #F3D9A0, transparent),
+    radial-gradient(1px 1px at 81% 62%, #F6EEDF, transparent),
+    radial-gradient(1.2px 1.2px at 92% 12%, #F3D9A0, transparent),
+    radial-gradient(1px 1px at 46% 88%, #F6EEDF, transparent);
+  background-size: 260px 220px;
+  animation: twinkleField 4s ease-in-out infinite;
+}
+
+.countdown::after {
+  background-size: 340px 300px;
+  background-position: 120px 60px;
+  animation-delay: -2s;
+}
+
+@keyframes twinkleField { 0%, 100% { opacity: .9; } 50% { opacity: .25; } }
+
+.countdown > * { position: relative; z-index: 1; }
+
+/* timer cells read as small lit panels */
+#timer div {
+  background: linear-gradient(180deg, rgba(201, 169, 106, .08), rgba(201, 169, 106, 0));
 }
 
 .countdown .eyebrow { color: var(--gold-on-night); }
@@ -920,10 +1292,60 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 
 /* ═══════════ 5 · THE INVITATION ═══════════ */
 
+/* a large mandala turning very slowly behind the names, and a warm glow
+   behind the couple's photo; it settles to plain paper at the bottom so
+   the seam into the details section stays invisible */
+.invite {
+  overflow: hidden;
+  background:
+    radial-gradient(80% 40% at 50% 0%, rgba(250, 244, 233, .95), transparent 75%),
+    radial-gradient(60% 30% at 50% 70%, rgba(214, 170, 100, .26), transparent 70%),
+    linear-gradient(180deg, #F2E8DB 0%, var(--paper) 100%);
+}
+
+.invite::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: clamp(2rem, 6vw, 4rem);
+  width: min(150vw, 820px);
+  aspect-ratio: 1;
+  margin-left: calc(min(150vw, 820px) / -2);
+  background: url("../images/mandala.svg") center / contain no-repeat;
+  opacity: .13;
+  animation: spin 160s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.invite > * { position: relative; z-index: 1; }
+
 /* the invitation and the details share a background, so trim the seam
    between them instead of stacking two full section paddings */
 .invite { padding-bottom: clamp(1.5rem, 4vw, 2.5rem); }
-.details { padding-top: clamp(1.5rem, 4vw, 2.5rem); }
+.details {
+  padding-top: clamp(1.5rem, 4vw, 2.5rem);
+  overflow: hidden;
+  background:
+    radial-gradient(55% 35% at 50% 78%, rgba(214, 170, 100, .2), transparent 70%),
+    linear-gradient(180deg, var(--paper) 0%, #E9DCCB 100%);
+}
+
+.details::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../images/pattern-floral.svg") 0 0 / 110px 110px;
+  opacity: .45;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%), radial-gradient(ellipse 55% 70% at 50% 55%, transparent 40%, #000 90%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 30%), radial-gradient(ellipse 55% 70% at 50% 55%, transparent 40%, #000 90%);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+
+.details > * { position: relative; z-index: 1; }
 
 .invite > .eyebrow { margin-bottom: clamp(1.1rem, 3vw, 1.5rem); }
 
@@ -947,14 +1369,71 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   color: var(--ink-faint);
 }
 
+/* the couple's parents: stacked on phones (long names need the full width),
+   side by side from tablet up (groom left, bride right) */
+.parents {
+  display: grid;
+  gap: 1.1rem;
+  width: min(100%, 720px);
+  margin-top: clamp(1.2rem, 3vw, 1.6rem);
+}
+
+.parent {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* a short gold rule between the two families on phones */
+.parent + .parent::before {
+  content: "";
+  width: 46px;
+  height: 1px;
+  margin-bottom: 1.1rem;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+@media (min-width: 640px) {
+  .parents { grid-template-columns: 1fr 1fr; gap: 0; }
+
+  .parent { padding: 0 clamp(1rem, 3vw, 2rem); }
+
+  .parent + .parent { border-left: 1px solid var(--gold-line-soft); }
+
+  .parent + .parent::before { display: none; }
+
+  .parent:only-child { grid-column: 1 / -1; }
+}
+
+.parent-of {
+  font: 600 10px/1.4 var(--font-sans);
+  letter-spacing: .3em;
+  text-indent: .3em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: .4rem;
+}
+
+.parent-name {
+  font: italic 500 clamp(1.2rem, 4vw, 1.45rem)/1.4 var(--font-serif);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.parent-amp {
+  font: italic 500 1.1rem/1.3 var(--font-serif);
+  color: var(--gold-deep);
+}
+
 .invite-note {
-  margin: .9rem 0 0;
+  margin: clamp(1.4rem, 4vw, 1.9rem) 0 0;
   font: italic 500 clamp(1.02rem, 3.2vw, 1.25rem) var(--font-serif);
   color: var(--ink-soft);
 }
 
 .portrait {
-  width: min(76vw, 360px);
+  width: min(74vw, 330px);
   margin: clamp(2.4rem, 7vw, 3.4rem) 0 0;
   padding: clamp(9px, 2.5vw, 12px);
   background: var(--paper-lift);
@@ -970,7 +1449,8 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 .portrait img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  /* the photo is 3:4 with breathing room on both sides — show it whole */
+  aspect-ratio: 3 / 4;
   object-fit: cover;
 }
 
@@ -1015,43 +1495,43 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 .event-list {
   display: grid;
   gap: clamp(1.3rem, 4vw, 1.7rem);
-  max-width: 520px;
+  max-width: 620px;
   margin: 0 auto;
 }
 
 .event-card {
-  padding: clamp(2.2rem, 6vw, 3rem) clamp(1.4rem, 5vw, 2.6rem);
-  background: var(--paper-deep);
-  border: 1px solid var(--gold-line);
-  outline: 1px solid var(--gold-line-soft);
-  outline-offset: 5px;
+  padding: clamp(1.4rem, 4vw, 2rem) clamp(.8rem, 3vw, 1.6rem);
+  background: linear-gradient(180deg, var(--paper-lift) 0%, #F2E8D9 100%) border-box;
+  border: 40px solid transparent;
+  border-image: url("../images/frame.svg") 40 / 40px stretch;
+  box-shadow: 0 26px 44px -26px rgba(55, 42, 30, .35);
   text-align: center;
-  transition: box-shadow .5s ease, outline-offset .5s ease;
+  transition: box-shadow .5s ease, transform .5s cubic-bezier(.22, 1, .36, 1);
 }
 
 @media (hover: hover) {
   .event-card:hover {
-    outline-offset: 8px;
-    box-shadow: 0 22px 40px -22px rgba(55, 42, 30, .3);
+    transform: translateY(-3px);
+    box-shadow: 0 32px 50px -26px rgba(55, 42, 30, .42);
   }
 }
 
 .ev-name {
   margin: .8rem 0 1.1rem;
-  font: 500 clamp(1.35rem, 5vw, 1.9rem)/1.2 var(--font-display);
+  font: 500 clamp(1.55rem, 5.6vw, 2.2rem)/1.2 var(--font-display);
   letter-spacing: .05em;
   color: var(--ink);
 }
 
 .ev-date {
   margin: 0;
-  font: 600 clamp(1.5rem, 5vw, 2rem)/1.2 var(--font-serif);
+  font: 600 clamp(1.7rem, 5.6vw, 2.3rem)/1.2 var(--font-serif);
   color: var(--ink);
 }
 
 .ev-time {
   margin: .5rem 0 0;
-  font: 600 9.5px/1.6 var(--font-sans);
+  font: 600 11px/1.6 var(--font-sans);
   letter-spacing: .3em;
   text-indent: .3em;
   text-transform: uppercase;
@@ -1059,22 +1539,25 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 }
 
 .ev-venue {
-  margin-top: 1.5rem;
-  padding-top: 1.4rem;
-  border-top: 1px solid rgba(146, 113, 63, .35);
+  margin-top: 1.6rem;
+  padding: 1.4rem clamp(.9rem, 4vw, 1.6rem) 1.5rem;
+  background: rgba(227, 212, 193, .45);
+  border: 1px solid var(--gold-line);
+  outline: 1px solid var(--gold-line-soft);
+  outline-offset: 4px;
 }
 
 .ev-venue strong {
   display: block;
   margin: .65rem 0 .25rem;
-  font: 500 clamp(1.2rem, 4vw, 1.5rem)/1.3 var(--font-serif);
+  font: 500 clamp(1.5rem, 5vw, 1.9rem)/1.3 var(--font-serif);
   color: var(--ink);
 }
 
 .ev-venue p {
   max-width: 36ch;
   margin: 0 auto;
-  font-size: .95rem;
+  font-size: 1.1rem;
   line-height: 1.65;
   color: var(--ink-soft);
 }
@@ -1083,7 +1566,7 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
   display: inline-block;
   margin-top: 1.3rem;
   padding-bottom: 5px;
-  font: 600 9.5px/1 var(--font-sans);
+  font: 600 11px/1 var(--font-sans);
   letter-spacing: .28em;
   text-indent: .28em;
   text-transform: uppercase;
@@ -1097,7 +1580,25 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 
 /* ═══════════ 7 · RSVP ═══════════ */
 
-.rsvp { background: var(--paper-deep); }
+.rsvp {
+  overflow: hidden;
+  background:
+    radial-gradient(50% 40% at 50% 62%, rgba(250, 242, 228, .8), transparent 75%),
+    linear-gradient(180deg, #E9DAC6 0%, var(--paper-deep) 100%);
+}
+
+.rsvp::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("../images/mandala.svg") left -160px top -160px / 360px 360px no-repeat,
+    url("../images/mandala.svg") right -180px bottom -180px / 400px 400px no-repeat;
+  opacity: .2;
+  pointer-events: none;
+}
+
+.rsvp > * { position: relative; z-index: 1; }
 
 .rsvp-quote {
   max-width: 420px;
@@ -1213,11 +1714,32 @@ body.opened .hero-bg img { animation: kenburns 7s cubic-bezier(.22, .61, .36, 1)
 /* ═══════════ FOOTER ═══════════ */
 
 .foot {
-  background: var(--night);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(50% 60% at 50% 50%, rgba(165, 129, 74, .16), transparent 70%),
+    var(--night);
   color: var(--cream);
   text-align: center;
   padding: clamp(4rem, 11vw, 6.5rem) 1.5rem calc(clamp(4rem, 11vw, 6.5rem) + env(safe-area-inset-bottom));
 }
+
+.foot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
+  background: url("../images/mandala.svg") center / contain no-repeat;
+  opacity: .08;
+  filter: brightness(1.6);
+  animation: spin 200s linear infinite;
+  pointer-events: none;
+}
+
+.foot > * { position: relative; }
 
 .foot .ornament span { color: var(--gold-on-night); }
 
@@ -1323,7 +1845,14 @@ body.opened #musicToggle { opacity: 1; pointer-events: auto; transform: none; }
 
   .js .polaroid.reveal img { filter: saturate(.92); }
 
-  .hero-dust { display: none; }
+  .hero-dust,
+  .hero-fireworks,
+  .hn-glint { display: none; }
+
+  .invite::before,
+  .foot::before,
+  .countdown::before,
+  .countdown::after { animation: none; }
 
   .env-wrap { transform: none; }
 }

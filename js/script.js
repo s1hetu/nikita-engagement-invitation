@@ -8,6 +8,11 @@ document.documentElement.classList.add("js");
 const CONFIG = {
   groom: "Krunal",
   bride: "Nikita",
+
+  // Shown under the couple's names in the invitation. Leave both empty to hide.
+  // DUMMY NAMES — replace with the real parents' names before sharing.
+  groomParents: "Mr. Hitendra Narendrabhai Shah & Mrs. Reshma Hitendra Shah",
+  brideParents: "Mr. Jayesh Jaysukhbhai Shah & Mrs. Jigisha Jayeshbhai Shah",
   dateText: "12 December 2026",
   // 11:00 AM India time, so guests abroad see the right countdown too.
   countdownTarget: "2026-12-12T11:00:00+05:30",
@@ -75,6 +80,21 @@ function populate() {
       </div>
     </article>`).join("");
 
+  const parents = $("#parents");
+  if (CONFIG.groomParents || CONFIG.brideParents) {
+    const side = (relation, names) => names ? `
+      <p class="parent">
+        <span class="parent-of">${relation}</span>
+        ${names.split(/\s*&\s*/).map(n => `<span class="parent-name">${n}</span>`)
+          .join(`<span class="parent-amp">&amp;</span>`)}
+      </p>` : "";
+    parents.innerHTML =
+      side("son of", CONFIG.groomParents) +
+      side("daughter of", CONFIG.brideParents);
+  } else {
+    parents?.remove();
+  }
+
   $("#rsvpLink").href = CONFIG.rsvpUrl;
 
   if (CONFIG.countdownBg) {
@@ -133,16 +153,21 @@ function setMusicState(playing) {
 // Browsers block sound until the visitor interacts with the page, so try
 // right away (works where autoplay is allowed) and otherwise start on the
 // very first touch, click or key press anywhere — even before the envelope.
+// Phones only grant that permission when the finger lifts (touchend /
+// pointerup / click), not on touchstart, so keep listening until the song
+// is actually playing rather than giving up after the first event.
 function autoStartMusic() {
   if (!music) return;
-  const events = ["pointerdown", "touchstart", "keydown"];
+  const events = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+  const stop = () => events.forEach(t => removeEventListener(t, unlock, true));
   const unlock = e => {
     if (musicToggle?.contains(e.target)) return; // the toggle handles itself
-    events.forEach(t => removeEventListener(t, unlock, true));
     if (music.paused) playMusic();
   };
-  music.play().then(() => setMusicState(true)).catch(() =>
-    events.forEach(t => addEventListener(t, unlock, { capture: true, passive: true })));
+  // once it's playing by any route (autoplay, tap, envelope, toggle), stop listening
+  music.addEventListener("playing", stop, { once: true });
+  events.forEach(t => addEventListener(t, unlock, { capture: true, passive: true }));
+  playMusic();
 }
 
 musicToggle?.addEventListener("click", () => {
@@ -199,6 +224,229 @@ function heroDust() {
     `<i style="left:${rnd(4, 96).toFixed(1)}%;--s:${rnd(1.5, 3.6).toFixed(1)}px;` +
     `--t:${rnd(11, 20).toFixed(1)}s;--delay:${rnd(-20, 0).toFixed(1)}s;` +
     `--drift:${rnd(-40, 40).toFixed(0)}px;--o:${rnd(.35, .85).toFixed(2)}"></i>`).join("");
+}
+
+/* ——— fireworks over the palace ——— */
+
+// Sequence: a few salvos light up the sky, then one big rocket rises to the
+// centre and bursts exactly where the names sit — and the names burst in
+// with it (body.names-in drives their CSS entrance).
+function heroFireworks() {
+  const sky = $(".hero-fireworks");
+  const showNames = () => document.body.classList.add("names-in");
+  if (!sky || matchMedia("(prefers-reduced-motion: reduce)").matches) { showNames(); return; }
+  setTimeout(showNames, 2500); // safety net if a timer is throttled
+
+  const COLORS = [
+    ["#FFE3A3", "#F3C76B", "#FFF6E0"],   // gold
+    ["#F8C9C4", "#FFE3A3", "#FFF6E0"],   // blush + gold
+    ["#FFF6E0", "#E9D7B0", "#F3C76B"],   // champagne
+  ];
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  // a rocket climbs from the palace, then bursts into a ring of sparks
+  function launch(xPct, yPct, opts = {}) {
+    const h = sky.clientHeight;
+    const rocket = document.createElement("i");
+    rocket.className = "fw-rocket";
+    const rise = opts.rise || rnd(.75, 1.05);
+    rocket.style.cssText = `left:${xPct}%;--climb:${-(h * (1 - yPct / 100))}px;--rise:${rise}s`;
+    sky.appendChild(rocket);
+    setTimeout(() => { rocket.remove(); burst(xPct, yPct, opts); opts.onBurst?.(); }, rise * 1000);
+  }
+
+  function burst(xPct, yPct, { big = false, radius: bigRadius } = {}) {
+    const el = document.createElement("div");
+    el.className = big ? "fw-burst fw-big" : "fw-burst";
+    el.style.cssText = `left:${xPct}%;top:${yPct}%`;
+    const palette = big ? COLORS[0] : COLORS[(Math.random() * COLORS.length) | 0];
+    const scale = Math.min(1, sky.clientWidth / 700 + .45);
+    const n = big ? 72 : 34, radius = big ? bigRadius : rnd(70, 130) * scale;
+    el.innerHTML = Array.from({ length: n }, (_, i) =>
+      `<i style="--a:${(i * 360 / n + rnd(-4, 4)).toFixed(1)}deg;` +
+      `--r:${(radius * rnd(.75, 1.1)).toFixed(0)}px;--fall:${rnd(14, 30).toFixed(0)}px;` +
+      `--life:${rnd(1.3, 1.9).toFixed(2)}s;--c:${palette[i % palette.length]}"></i>`).join("");
+    sky.appendChild(el);
+    setTimeout(() => el.remove(), 2200);
+  }
+
+  // bursts stay in the night sky either side of / above the names
+  const spot = () => {
+    const x = rnd(8, 92);
+    // keep bursts over the centre high, clear of the names
+    return [x, x > 30 && x < 70 ? rnd(4, 12) : rnd(8, 28)];
+  };
+
+  // only keep firing while the hero is on screen
+  let visible = true;
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; })
+    .observe(sky);
+
+  // fire a few rockets together, slightly staggered, so they burst as a salvo
+  const salvo = count => {
+    if (sky.childElementCount > 24) return; // don't pile up on slow phones
+    for (let i = 0; i < count; i++) setTimeout(() => launch(...spot()), rnd(0, 550));
+  };
+
+  // 1. warm-up: two salvos light the sky while the names are still hidden
+  [[20, 16], [80, 13], [50, 6], [12, 24], [88, 22]].forEach(([x, y], i) =>
+    setTimeout(() => launch(x, y), i * 180));
+  setTimeout(() => salvo(4), 450);
+
+  // 2. the finale rocket climbs to the names and bursts — the names appear with it
+  setTimeout(() => {
+    const names = $(".hero .names").getBoundingClientRect();
+    const box = sky.getBoundingClientRect();
+    const x = ((names.left + names.width / 2 - box.left) / box.width) * 100;
+    const y = ((names.top + names.height / 2 - box.top) / box.height) * 100;
+    // the ring opens out to just past the ends of the names
+    launch(x, y, { big: true, radius: names.width * .58, rise: .7, onBurst: showNames });
+  }, 500);
+
+  // 3. then the celebration keeps going in salvos
+  setTimeout(loop, 2200);
+
+  function loop() {
+    setTimeout(() => {
+      if (visible && !document.hidden) salvo(2 + ((Math.random() * 3) | 0));
+      loop();
+    }, rnd(1300, 2400));
+  }
+}
+
+/* ——— the couple's names, written in light ———
+   The hero names are rebuilt as SVG text so CSS can trace each letter's
+   outline (stroke-dash) before filling it with gold. One line on wider
+   screens; Krunal / & / Nikita stacked on phones. */
+
+function heroNames() {
+  const h1 = $(".hero .names");
+  if (!h1) return;
+  const NS = "http://www.w3.org/2000/svg";
+  const narrow = matchMedia("(max-width: 639px)");
+  let sweepAnim = null, sweepStarted = false;
+
+  function build() {
+    const groom = CONFIG.groom, bride = CONFIG.bride;
+    h1.setAttribute("aria-label", `${groom} & ${bride}`);
+
+    // draw at font-size 100 in SVG units, measure, then scale to the CSS size
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "hn-svg");
+    svg.setAttribute("aria-hidden", "true");
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="hnGold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E9CF8E"/><stop offset=".3" stop-color="#D2AE62"/>
+          <stop offset=".52" stop-color="#A57A35"/><stop offset=".68" stop-color="#D4B06A"/>
+          <stop offset="1" stop-color="#86602A"/>
+        </linearGradient>
+        <linearGradient id="hnSweep" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="160" y2="0">
+          <stop offset="0" stop-color="#FFFDF2" stop-opacity="0"/>
+          <stop offset=".5" stop-color="#FFF6DC" stop-opacity=".45"/>
+          <stop offset="1" stop-color="#FFFDF2" stop-opacity="0"/>
+        </linearGradient>
+      </defs>`;
+
+    const lines = narrow.matches
+      ? [{ t: groom, y: 0 }, { amp: true, y: 62 }, { t: bride, y: 140 }]
+      : [{ t: groom, amp: true, t2: bride, y: 0 }];
+
+    const g = document.createElementNS(NS, "g");
+    lines.forEach(line => {
+      if (line.t && line.t2) {
+        // one line: Krunal & Nikita (the & in italic serif, a little raised)
+        g.insertAdjacentHTML("beforeend",
+          `<text class="hn-ink" x="0" y="${line.y}" font-size="100">${esc(line.t)}` +
+          `<tspan class="hn-amp" font-size="44" dx="22" dy="-14">&amp;</tspan>` +
+          `<tspan dx="22" dy="14">${esc(line.t2)}</tspan></text>`);
+      } else if (line.amp) {
+        g.insertAdjacentHTML("beforeend",
+          `<text class="hn-ink hn-amp" x="0" y="${line.y}" font-size="42" text-anchor="middle">&amp;</text>`);
+      } else {
+        g.insertAdjacentHTML("beforeend",
+          `<text class="hn-ink" x="0" y="${line.y}" font-size="100" text-anchor="middle">${esc(line.t)}</text>`);
+      }
+    });
+    svg.appendChild(g);
+
+    // measure off-screen (fonts must be applied for an accurate box)
+    h1.replaceChildren(svg);
+    const box = g.getBBox();
+
+    // phones: gold rules either side of the &
+    if (narrow.matches) {
+      const ampBox = g.children[1].getBBox(), cy = ampBox.y + ampBox.height * .55, gap = 16;
+      g.insertAdjacentHTML("beforeend",
+        `<line class="hn-rule" x1="${ampBox.x - gap - 70}" y1="${cy}" x2="${ampBox.x - gap}" y2="${cy}"/>` +
+        `<line class="hn-rule" x1="${ampBox.x + ampBox.width + gap + 70}" y1="${cy}" x2="${ampBox.x + ampBox.width + gap}" y2="${cy}"/>`);
+    }
+
+    // the sweeping light: the same text again, filled with a moving gradient
+    const sweep = g.cloneNode(true);
+    sweep.querySelectorAll("line").forEach(l => l.remove());
+    sweep.querySelectorAll("text").forEach(t => t.setAttribute("class", "hn-sweep" + (t.classList.contains("hn-amp") ? " hn-amp" : "")));
+    svg.appendChild(sweep);
+    const grad = svg.querySelector("#hnSweep");
+    const from = box.x - 200, to = box.x + box.width + 40;
+    grad.insertAdjacentHTML("beforeend",
+      `<animateTransform attributeName="gradientTransform" type="translate" dur="6s"
+         values="${from} 0; ${to} 0; ${to} 0" keyTimes="0; .32; 1" repeatCount="indefinite" begin="indefinite"/>`);
+    grad.setAttribute("gradientTransform", `translate(${from} 0)`);
+    sweepAnim = grad.querySelector("animateTransform");
+    sweepStarted = false;
+
+    const pad = 24; // room for the glow and the swashes
+    svg.setAttribute("viewBox", `${box.x - pad} ${box.y - pad} ${box.width + pad * 2} ${box.height + pad * 2}`);
+    const fontPx = parseFloat(getComputedStyle(h1).fontSize);
+    svg.style.width = `${((box.width + pad * 2) / 100) * fontPx}px`;
+
+    addGlints();
+    if (document.body.classList.contains("names-in")) startSweep();
+  }
+
+  function startSweep() {
+    if (sweepStarted) return;
+    sweepStarted = true;
+    setTimeout(() => { try { sweepAnim?.beginElement(); } catch (e) { /* SMIL unsupported */ } }, 1900);
+  }
+
+  // four-point glints spread across the names
+  function addGlints() {
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    h1.insertAdjacentHTML("beforeend", Array.from({ length: 7 }, (_, i) =>
+      `<i class="hn-glint" style="left:${(10 + (i * 80) / 6 + rnd(-4, 4)).toFixed(1)}%;` +
+      `top:${rnd(25, 75).toFixed(1)}%;--s:${rnd(.6, 1.15).toFixed(2)};` +
+      `--t:${rnd(3.8, 6.5).toFixed(1)}s;--delay:${rnd(2, 5).toFixed(1)}s"></i>`).join(""));
+  }
+
+  function esc(t) {
+    return String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+
+  // build once the script font is ready (so the measured box is right)
+  const ready = document.fonts?.load
+    ? Promise.all([document.fonts.load('100px "Great Vibes"'), document.fonts.load('italic 500 44px "Cormorant Garamond"')])
+    : Promise.resolve();
+  ready.catch(() => {}).then(build);
+
+  // switch layout when crossing the phone breakpoint; resize to the new font size
+  narrow.addEventListener?.("change", build);
+  let t;
+  addEventListener("resize", () => {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      const svg = h1.querySelector(".hn-svg");
+      if (!svg) return;
+      const vb = svg.viewBox.baseVal;
+      svg.style.width = `${(vb.width / 100) * parseFloat(getComputedStyle(h1).fontSize)}px`;
+    }, 150);
+  });
+
+  // the sweep starts once the names have been written
+  new MutationObserver(() => {
+    if (document.body.classList.contains("names-in")) startSweep();
+  }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
 }
 
 /* ——— reading progress thread ——— */
@@ -279,15 +527,50 @@ function scratchCard() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalCompositeOperation = "source-over";
 
-    // gold foil with a metallic band of light through the middle
+    // antique gold foil: deep bronze edges, a soft champagne band of light
     const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0, "#9C7638");
-    g.addColorStop(.3, "#D9B56A");
-    g.addColorStop(.5, "#F3DDA4");
-    g.addColorStop(.7, "#C99E52");
-    g.addColorStop(1, "#86642F");
+    g.addColorStop(0, "#6E4F25");
+    g.addColorStop(.28, "#A47A3E");
+    g.addColorStop(.5, "#D9BC82");
+    g.addColorStop(.72, "#A47A3E");
+    g.addColorStop(1, "#5E4220");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
+
+    // darker vignette so the light pools in the centre
+    const v = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .2, w / 2, h / 2, Math.max(w, h) * .7);
+    v.addColorStop(0, "rgba(0,0,0,0)");
+    v.addColorStop(1, "rgba(40,24,8,.35)");
+    ctx.fillStyle = v;
+    ctx.fillRect(0, 0, w, h);
+
+    // embossed mandala behind the label (drawn here, not loaded as an image,
+    // so the canvas stays readable for the "how much is scratched" check)
+    const cx0 = w / 2, cy0 = h / 2, R = Math.min(w, h) * .46;
+    const petals = (count, r0, r1, width, offset) => {
+      for (let i = 0; i < count; i++) {
+        const a = (i / count) * Math.PI * 2 + offset;
+        const cos = Math.cos(a), sin = Math.sin(a), mid = (r0 + r1) / 2;
+        const px = (r, o) => cx0 + r * cos - o * sin, py = (r, o) => cy0 + r * sin + o * cos;
+        ctx.moveTo(px(r0, 0), py(r0, 0));
+        ctx.quadraticCurveTo(px(mid, width), py(mid, width), px(r1, 0), py(r1, 0));
+        ctx.quadraticCurveTo(px(mid, -width), py(mid, -width), px(r0, 0), py(r0, 0));
+      }
+    };
+    const mandala = (dx, dy, color) => {
+      ctx.save();
+      ctx.translate(dx, dy);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      petals(12, R * .18, R * .5, R * .08, 0);
+      petals(24, R * .55, R * .9, R * .06, Math.PI / 24);
+      ctx.stroke();
+      [R * .16, R * .52, R * .94].forEach(r => { ctx.beginPath(); ctx.arc(cx0, cy0, r, 0, Math.PI * 2); ctx.stroke(); });
+      ctx.restore();
+    };
+    mandala(1, 1, "rgba(60, 38, 12, .28)");     // shadow
+    mandala(0, 0, "rgba(255, 240, 200, .32)");  // highlight
 
     // fine metallic grain
     for (let i = 0; i < w * h / 18; i++) {
@@ -308,11 +591,15 @@ function scratchCard() {
     }
     ctx.restore();
 
-    // stamped inner border
-    ctx.strokeStyle = "rgba(255, 244, 214, .55)";
-    ctx.setLineDash([3, 4]);
-    ctx.strokeRect(10.5, 10.5, w - 21, h - 21);
-    ctx.setLineDash([]);
+    // stamped double border with a dot in each corner
+    ctx.strokeStyle = "rgba(255, 240, 205, .6)";
+    ctx.strokeRect(9.5, 9.5, w - 19, h - 19);
+    ctx.strokeStyle = "rgba(255, 240, 205, .35)";
+    ctx.strokeRect(14.5, 14.5, w - 29, h - 29);
+    ctx.fillStyle = "rgba(255, 240, 205, .7)";
+    [[20, 20], [w - 20, 20], [w - 20, h - 20], [20, h - 20]].forEach(([x, y]) => {
+      ctx.beginPath(); ctx.arc(x, y, 1.6, 0, Math.PI * 2); ctx.fill();
+    });
 
     // embossed label
     const cx = w / 2, cy = h / 2;
@@ -515,6 +802,7 @@ function initEnvelope() {
     envelope.classList.add("opening");
     // seal cracks → the two halves slide apart, revealing the hero
     setTimeout(() => document.body.classList.add("opened"), 500);
+    setTimeout(heroFireworks, 500);
     setTimeout(() => envelope.classList.add("gone"), 1550);
     setTimeout(() => revealCtl.start(), 1600);
     setTimeout(() => envelope.remove(), 2300);
@@ -527,6 +815,7 @@ function initEnvelope() {
   if (skipped) {
     envelope.remove();
     document.body.classList.add("opened");
+    setTimeout(heroFireworks, 200);
     revealCtl.start();
     return;
   }
@@ -544,6 +833,7 @@ const revealCtl = makeReveals();
 rsvp();
 countdown();
 heroDust();
+heroNames();
 scrollProgress();
 scratchCard();
 initEnvelope();

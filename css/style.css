@@ -542,16 +542,6 @@ body.opened .hero-bg img {
   margin-bottom: 34svh;
 }
 
-/* phones: the stacked names are taller, so lift them further */
-@media (max-width: 639px) {
-  .hero-content {
-    margin-bottom: 46vh;
-    margin-bottom: 46svh;
-  }
-
-  .hero .eyebrow { margin-bottom: .6rem; }
-}
-
 .hero .eyebrow {
   margin-bottom: clamp(1.2rem, 3.5vw, 1.8rem);
   color: var(--gold-on-night);
@@ -563,53 +553,38 @@ body.opened .hero-bg img {
    traced. Without JS they simply show as cream script text. */
 .hero .names {
   position: relative;
-  font-size: clamp(4.6rem, 9.6vw, 8.6rem);
+  font-size: clamp(2.3rem, 10vw, 6.6rem);
   white-space: nowrap;
   color: #F6EEDF;
   text-shadow: 0 2px 30px rgba(20, 12, 6, .55);
 }
 
-@media (max-width: 639px) {
-  .hero .names { font-size: clamp(3.6rem, 20vw, 5.6rem); }
-}
-
-/* the SVG box includes the font's full ascent/descent; trim the extra
-   space below the letters */
-.js .hero .names { margin-bottom: -.32em; }
-
-@media (max-width: 639px) {
-  .js .hero .names { margin: -.15em 0 -.5em; }
-}
+/* the SVG box includes the font's full ascent/descent; trim the top, and
+   keep breathing room below so the names float clear of the palace spire */
+.js .hero .names { margin: -.2em 0 .35em; }
 
 .hn-svg {
   display: block;
   max-width: 94vw;
   height: auto;
   overflow: visible;
-  /* a faint warm glow around the gold */
-  filter: drop-shadow(0 0 8px rgba(255, 200, 120, .22));
+  /* the soft dark shadow the names always had, for contrast on the sky */
+  filter: drop-shadow(0 2px 14px rgba(20, 12, 6, .55));
 }
 
 .hn-svg text { font-family: var(--font-script); }
 
 .hn-svg .hn-amp { font-family: var(--font-serif); font-style: italic; font-weight: 500; }
 
-/* 1. light traces every letter's outline … */
+/* 1. light traces every letter's outline (cream names, gold &, as before) … */
 .hn-ink {
-  fill: url(#hnGold);
+  fill: #F6EEDF;
   fill-opacity: 0;
-  stroke: #FFE9B4;
+  stroke: #F3D9A0;
   stroke-width: 1.1;
   stroke-linejoin: round;
   stroke-dasharray: 1600;
   stroke-dashoffset: 1600;
-}
-
-.hn-rule {
-  stroke: #EBCB86;
-  stroke-width: 1;
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
 }
 
 body.names-in .hn-ink {
@@ -618,19 +593,19 @@ body.names-in .hn-ink {
     hnFill .9s ease .85s forwards;
 }
 
-body.names-in .hn-rule { animation: hnTrace 1s ease .5s forwards; }
-
 @keyframes hnTrace { to { stroke-dashoffset: 0; } }
 
-/* 2. … then molten gold floods in and the tracing light dims to a bevel */
-@keyframes hnFill { to { fill-opacity: 1; stroke-opacity: .15; } }
+/* 2. … then the letters fill in and the tracing light fades away */
+@keyframes hnFill { to { fill-opacity: 1; stroke-opacity: 0; } }
+
+.hn-ink .hn-amp { fill: var(--gold-on-night); }
 
 /* while the light is tracing, the whole name glows hot, then cools */
 body.names-in .hn-svg { animation: hnHeat 2.2s ease-out forwards; }
 
 @keyframes hnHeat {
   0%   { filter: drop-shadow(0 0 3px rgba(255, 236, 190, .9)) drop-shadow(0 0 10px rgba(255, 200, 110, .45)); }
-  100% { filter: drop-shadow(0 0 8px rgba(255, 200, 120, .22)); }
+  100% { filter: drop-shadow(0 2px 14px rgba(20, 12, 6, .55)); }
 }
 
 /* 3. a beam of light sweeps the gold (SVG gradient, started by script.js) */
@@ -873,19 +848,21 @@ body.names-in .hero .scroll-cue { animation: fadeIn 1s ease .9s forwards; }
 .memories {
   overflow: hidden;
   background:
-    radial-gradient(65% 45% at 0% 0%, rgba(226, 170, 158, .32), transparent 70%),
-    radial-gradient(60% 45% at 100% 100%, rgba(201, 160, 94, .28), transparent 70%),
-    linear-gradient(180deg, #F4EADD 0%, #EADBC8 100%);
+    /* soft light pooled behind the photos so they stay the focus */
+    radial-gradient(48% 38% at 50% 52%, rgba(255, 246, 236, .75), transparent 75%),
+    radial-gradient(75% 50% at 0% 0%, rgba(206, 132, 120, .5), transparent 70%),
+    radial-gradient(75% 50% at 100% 100%, rgba(184, 132, 62, .45), transparent 70%),
+    linear-gradient(180deg, #F0DCCD 0%, #E6CBB5 100%);
 }
 
 .memories::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("../images/pattern-floral.svg") 0 0 / 110px 110px;
-  opacity: .5;
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 55%, transparent 30%, #000 85%);
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 55%, transparent 30%, #000 85%);
+  background: url("../images/pattern-floral.svg") 0 0 / 96px 96px;
+  opacity: .95;
+  -webkit-mask-image: radial-gradient(ellipse 50% 42% at 50% 52%, transparent 15%, #000 70%);
+  mask-image: radial-gradient(ellipse 50% 42% at 50% 52%, transparent 15%, #000 70%);
   pointer-events: none;
 }
 
@@ -894,9 +871,9 @@ body.names-in .hero .scroll-cue { animation: fadeIn 1s ease .9s forwards; }
   position: absolute;
   inset: 0;
   background:
-    url("../images/mandala.svg") right -170px top -170px / 380px 380px no-repeat,
-    url("../images/mandala.svg") left -190px bottom -190px / 420px 420px no-repeat;
-  opacity: .22;
+    url("../images/mandala.svg") right -180px top -180px / 440px 440px no-repeat,
+    url("../images/mandala.svg") left -200px bottom -200px / 480px 480px no-repeat;
+  opacity: .42;
   pointer-events: none;
 }
 

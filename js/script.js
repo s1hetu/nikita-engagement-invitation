@@ -316,14 +316,12 @@ function heroFireworks() {
 
 /* ——— the couple's names, written in light ———
    The hero names are rebuilt as SVG text so CSS can trace each letter's
-   outline (stroke-dash) before filling it with gold. One line on wider
-   screens; Krunal / & / Nikita stacked on phones. */
+   outline (stroke-dash) before filling it in. */
 
 function heroNames() {
   const h1 = $(".hero .names");
   if (!h1) return;
   const NS = "http://www.w3.org/2000/svg";
-  const narrow = matchMedia("(max-width: 639px)");
   let sweepAnim = null, sweepStarted = false;
 
   function build() {
@@ -336,11 +334,6 @@ function heroNames() {
     svg.setAttribute("aria-hidden", "true");
     svg.innerHTML = `
       <defs>
-        <linearGradient id="hnGold" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#E9CF8E"/><stop offset=".3" stop-color="#D2AE62"/>
-          <stop offset=".52" stop-color="#A57A35"/><stop offset=".68" stop-color="#D4B06A"/>
-          <stop offset="1" stop-color="#86602A"/>
-        </linearGradient>
         <linearGradient id="hnSweep" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="160" y2="0">
           <stop offset="0" stop-color="#FFFDF2" stop-opacity="0"/>
           <stop offset=".5" stop-color="#FFF6DC" stop-opacity=".45"/>
@@ -348,44 +341,21 @@ function heroNames() {
         </linearGradient>
       </defs>`;
 
-    const lines = narrow.matches
-      ? [{ t: groom, y: 0 }, { amp: true, y: 62 }, { t: bride, y: 140 }]
-      : [{ t: groom, amp: true, t2: bride, y: 0 }];
-
+    // Krunal & Nikita on one line, the & in italic serif, a little raised
     const g = document.createElementNS(NS, "g");
-    lines.forEach(line => {
-      if (line.t && line.t2) {
-        // one line: Krunal & Nikita (the & in italic serif, a little raised)
-        g.insertAdjacentHTML("beforeend",
-          `<text class="hn-ink" x="0" y="${line.y}" font-size="100">${esc(line.t)}` +
-          `<tspan class="hn-amp" font-size="44" dx="22" dy="-14">&amp;</tspan>` +
-          `<tspan dx="22" dy="14">${esc(line.t2)}</tspan></text>`);
-      } else if (line.amp) {
-        g.insertAdjacentHTML("beforeend",
-          `<text class="hn-ink hn-amp" x="0" y="${line.y}" font-size="42" text-anchor="middle">&amp;</text>`);
-      } else {
-        g.insertAdjacentHTML("beforeend",
-          `<text class="hn-ink" x="0" y="${line.y}" font-size="100" text-anchor="middle">${esc(line.t)}</text>`);
-      }
-    });
+    g.innerHTML =
+      `<text class="hn-ink" x="0" y="0" font-size="100">${esc(groom)}` +
+      `<tspan class="hn-amp" font-size="40" dx="16" dy="-18">&amp;</tspan>` +
+      `<tspan dx="16" dy="18">${esc(bride)}</tspan></text>`;
     svg.appendChild(g);
 
     // measure off-screen (fonts must be applied for an accurate box)
     h1.replaceChildren(svg);
     const box = g.getBBox();
 
-    // phones: gold rules either side of the &
-    if (narrow.matches) {
-      const ampBox = g.children[1].getBBox(), cy = ampBox.y + ampBox.height * .55, gap = 16;
-      g.insertAdjacentHTML("beforeend",
-        `<line class="hn-rule" x1="${ampBox.x - gap - 70}" y1="${cy}" x2="${ampBox.x - gap}" y2="${cy}"/>` +
-        `<line class="hn-rule" x1="${ampBox.x + ampBox.width + gap + 70}" y1="${cy}" x2="${ampBox.x + ampBox.width + gap}" y2="${cy}"/>`);
-    }
-
     // the sweeping light: the same text again, filled with a moving gradient
     const sweep = g.cloneNode(true);
-    sweep.querySelectorAll("line").forEach(l => l.remove());
-    sweep.querySelectorAll("text").forEach(t => t.setAttribute("class", "hn-sweep" + (t.classList.contains("hn-amp") ? " hn-amp" : "")));
+    sweep.querySelector("text").setAttribute("class", "hn-sweep");
     svg.appendChild(sweep);
     const grad = svg.querySelector("#hnSweep");
     const from = box.x - 200, to = box.x + box.width + 40;
@@ -430,8 +400,7 @@ function heroNames() {
     : Promise.resolve();
   ready.catch(() => {}).then(build);
 
-  // switch layout when crossing the phone breakpoint; resize to the new font size
-  narrow.addEventListener?.("change", build);
+  // keep the names at the CSS font size as the window resizes
   let t;
   addEventListener("resize", () => {
     clearTimeout(t);

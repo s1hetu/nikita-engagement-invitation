@@ -662,6 +662,70 @@ body.names-in .hn-glint { animation: glint var(--t, 5s) ease-in-out var(--delay,
   z-index: -1;
 }
 
+/* god's blessing in the night sky at the very top; drawn in gold as the
+   palace lights come up */
+.hero-blessing {
+  position: absolute;
+  top: calc(.25rem + env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  z-index: 1;
+  /* phones: Ganesh and the swastika side by side, the blessing beneath */
+  display: grid;
+  grid-template-areas: "g s" "t t";
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+  gap: .45rem 1.6rem;
+  pointer-events: none;
+}
+
+.hb-ganesh { grid-area: g; }
+
+.hb-swastika { grid-area: s; }
+
+.hb-text { grid-area: t; }
+
+/* wider screens: one row — Ganesh · ॥ blessing ॥ · swastika */
+@media (min-width: 640px) {
+  .hero-blessing {
+    grid-template-areas: "g t s";
+    gap: 1.1rem;
+  }
+}
+
+.hero-blessing .deity {
+  width: clamp(38px, 10vw, 48px);
+  stroke: var(--gold-on-night);
+  filter: drop-shadow(0 0 6px rgba(255, 210, 140, .25));
+}
+
+.hero-blessing .deity[viewBox="0 0 24 24"] { width: clamp(28px, 7.5vw, 36px); stroke-width: 1; }
+
+.hero-blessing .deity .dot { fill: var(--gold-on-night); }
+
+.hb-text {
+  margin: 0;
+  font: 600 clamp(.62rem, 2.4vw, .78rem)/1.4 var(--font-display);
+  letter-spacing: .18em;
+  text-indent: .18em;
+  color: var(--gold-on-night);
+  text-shadow: 0 1px 10px rgba(20, 12, 6, .8);
+}
+
+.js .hero-blessing .deity path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.js .hero-blessing .dot,
+.js .hero-blessing .hb-text { opacity: 0; }
+
+body.opened .hero-blessing .deity path { animation: hnTrace 1.4s cubic-bezier(.45, .05, .35, 1) .15s forwards; }
+
+body.opened .hero-blessing .dot,
+body.opened .hero-blessing .hb-text { animation: fadeIn .8s ease 1s forwards; }
+
 .js .hero .eyebrow,
 .js .hero .names { opacity: 0; }
 
@@ -1326,6 +1390,23 @@ body.names-in .hero .scroll-cue { animation: fadeIn 1s ease .9s forwards; }
 
 .invite > .eyebrow { margin-bottom: clamp(1.1rem, 3vw, 1.5rem); }
 
+/* gold line-art deities (Shri Ganesh, the Jain swastika) — used at the top of the hero */
+.deity {
+  width: clamp(64px, 19vw, 86px);
+  height: auto;
+  overflow: visible;
+  fill: none;
+  stroke: var(--gold-deep);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* the swastika is drawn on a 24-unit grid: thinner stroke, slightly smaller */
+.deity[viewBox="0 0 24 24"] { width: clamp(48px, 14vw, 64px); stroke-width: .85; }
+
+.deity .dot { fill: var(--gold-deep); stroke: none; }
+
 .invite-lede {
   margin: 0;
   font: 500 clamp(1.25rem, 4.2vw, 1.85rem)/1.45 var(--font-serif);
@@ -1410,7 +1491,7 @@ body.names-in .hero .scroll-cue { animation: fadeIn 1s ease .9s forwards; }
 }
 
 .portrait {
-  width: min(74vw, 330px);
+  width: min(78vw, 360px);
   margin: clamp(2.4rem, 7vw, 3.4rem) 0 0;
   padding: clamp(9px, 2.5vw, 12px);
   background: var(--paper-lift);
@@ -1426,7 +1507,7 @@ body.names-in .hero .scroll-cue { animation: fadeIn 1s ease .9s forwards; }
 .portrait img {
   display: block;
   width: 100%;
-  /* the photo is 3:4 with breathing room on both sides — show it whole */
+  /* the photo is 3:4 — show it whole */
   aspect-ratio: 3 / 4;
   object-fit: cover;
 }
@@ -1718,15 +1799,17 @@ body.names-in .hero .scroll-cue { animation: fadeIn 1s ease .9s forwards; }
 
 .foot > * { position: relative; }
 
-.foot .ornament span { color: var(--gold-on-night); }
-
-.foot .ornament::before,
-.foot .ornament::after {
-  background: linear-gradient(90deg, transparent, rgba(201, 169, 106, .5));
+/* the couple's NK monogram, signing off the invitation */
+.foot-logo {
+  display: block;
+  width: min(54vw, 230px);
+  height: auto;
+  margin: 0 auto 1.6rem;
+  filter: brightness(1.45) saturate(1.15) drop-shadow(0 0 22px rgba(232, 196, 120, .3));
 }
 
 .foot-names {
-  margin: 1.35rem 0 .6rem;
+  margin: 0 0 .6rem;
   font: 400 clamp(2.3rem, 9vw, 3.8rem)/1.2 var(--font-script);
 }
 

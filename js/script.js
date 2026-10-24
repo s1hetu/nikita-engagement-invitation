@@ -14,6 +14,9 @@ const CONFIG = {
   groomParents: "Mr. Hitendra Narendrabhai Shah & Mrs. Reshma Hitendra Shah",
   brideParents: "Mr. Jayesh Jaysukhbhai Shah & Mrs. Jigisha Jayeshbhai Shah",
   dateText: "12 December 2026",
+
+  // The blessing at the top of the invitation (shown between ॥ … ॥).
+  blessing: "Shri Mahaveerai Namah",
   // 11:00 AM India time, so guests abroad see the right countdown too.
   countdownTarget: "2026-12-12T11:00:00+05:30",
 
@@ -57,6 +60,9 @@ function populate() {
   $$("[data-groom]").forEach(el => (el.textContent = CONFIG.groom));
   $$("[data-bride]").forEach(el => (el.textContent = CONFIG.bride));
   $$("[data-date]").forEach(el => (el.textContent = CONFIG.dateText));
+  $$("[data-blessing]").forEach(el => (el.textContent = CONFIG.blessing));
+  // normalise path lengths so the blessing's gold lines can be "drawn" in CSS
+  $$(".deity path").forEach(p => p.setAttribute("pathLength", "1"));
 
   $("#memories").innerHTML = CONFIG.memories.map((m, i) => {
     const tilt = (i % 2 ? 1 : -1) * (m.wide ? 0.9 : 1.5 + (i % 3) * 0.7);
@@ -271,10 +277,15 @@ function heroFireworks() {
   }
 
   // bursts stay in the night sky either side of / above the names
+  // never burst over god's blessing at the top: start just below it
+  const blessing = $(".hero-blessing");
+  const floor = () => blessing
+    ? ((blessing.getBoundingClientRect().bottom - sky.getBoundingClientRect().top) / sky.clientHeight) * 100 + 5
+    : 4;
   const spot = () => {
-    const x = rnd(8, 92);
+    const x = rnd(8, 92), top = floor();
     // keep bursts over the centre high, clear of the names
-    return [x, x > 30 && x < 70 ? rnd(4, 12) : rnd(8, 28)];
+    return [x, x > 30 && x < 70 ? rnd(top, top + 8) : rnd(top, Math.max(top + 4, 28))];
   };
 
   // only keep firing while the hero is on screen
@@ -289,7 +300,8 @@ function heroFireworks() {
   };
 
   // 1. warm-up: two salvos light the sky while the names are still hidden
-  [[20, 16], [80, 13], [50, 6], [12, 24], [88, 22]].forEach(([x, y], i) =>
+  const f = floor();
+  [[20, f + 6], [80, f + 3], [50, f + 1], [12, f + 12], [88, f + 10]].forEach(([x, y], i) =>
     setTimeout(() => launch(x, y), i * 180));
   setTimeout(() => salvo(4), 450);
 
